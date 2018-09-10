@@ -1,0 +1,20 @@
+{
+	"name": "@arijs/frontend",
+	"version": "0.1.0",
+	"description": "Front-end utilities and patterns, components for use with VueJS",
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/arijs/front-end.git"
+	},
+	"keywords": [
+		"frontend",
+		"components",
+		"vuejs"
+	],
+	"author": "AriJS",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/arijs/front-end/issues"
+	},
+	"homepage": "https://github.com/arijs/front-end#readme"
+}
