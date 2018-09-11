@@ -3,7 +3,7 @@
 var vtmLoad = (function() {
 	var vtm;
 	var vtmLoading;
-	var vtmUrl = vars.pathVueTextMask || (vars.baseUrl || '/')+'vendor/vue-text-mask.min.js';
+	var vtmUrl = vars.pathVueTextMask || 'https://unpkg.com/vue-text-mask@6.1.2/dist/vueTextMask.js';
 	return function vtmLoad(cb) {
 		if (vtm) return setTimeout(cb, 0);
 		if (vtmLoading) return vtmLoading.push(cb);
