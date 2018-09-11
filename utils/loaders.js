@@ -153,7 +153,7 @@ Utils.componentDynamic = function componentDynamic(opt) {
 				done();
 			});
 		});
-		pathHtml && Utils.loadAjax({ url: pathHtml }, function(err, response) {
+		pathHtml && Utils.loadAjax({ url: pathHtml, cb: function(err, response) {
 			if (err) {
 				return reject({
 					message: 'Error loading component '+opt.name+' template',
@@ -165,7 +165,7 @@ Utils.componentDynamic = function componentDynamic(opt) {
 				html = true;
 				done();
 			});
-		});
+		}});
 		pathCss && Utils.loadStylesheet(pathCss, function(err) {
 			if (err && opt.logCssNotFound) {
 				console.log('Error loading stylesheet for component '+opt.name);
@@ -195,7 +195,7 @@ Utils.fnPrefixLoader = function(opt) {
 	var listenersMap = {};
 	return match;
 	function match(id) {
-		var match = Utils.compPrefixPath(prefix, id);
+		var match = Utils.compPrefixPath(opt.prefix, id);
 		var getUrl = opt.getUrl;
 		var pathHtml = opt.pathHtml;
 		var pathJs = opt.pathJs;
@@ -268,7 +268,7 @@ Utils.fnLoadManager = function(opt) {
 	}
 	function getLoader(id) {
 		for (var i = 0; i < plcount; i++) {
-			var match = prefixLoaders[i].match(id);
+			var match = prefixLoaders[i](id);
 			if (match) return match;
 			// {
 			// 	match.load(callback);

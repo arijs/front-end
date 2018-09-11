@@ -72,7 +72,7 @@ Utils.extend = (function() {
 		deep: extendDeep,
 		merge: extendMerge,
 		custom: extendCustom,
-		fnExtendCustom: fnExtendCustom
+		fnExtendCustom: fnExtendCustom,
 		fnPropertyExtend: fnPropertyExtend,
 		propertyOverwrite: propertyOverwrite,
 		propertyObjectModify: propertyObjectModify,
