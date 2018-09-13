@@ -163,6 +163,13 @@ function naoVazio(campo) {
 	}
 }
 
+function opcional(campo) {
+	var valor = campo.valor.replace(reTrim, '');
+	if (!valor) {
+		return { falta: false };
+	}
+}
+
 function isTrue(campo) {
 	if (!campo.valor) {
 		return { falta: true };
@@ -254,6 +261,7 @@ function currentStatus(campo) {
 
 return {
 	naoVazio: naoVazio,
+	opcional: opcional,
 	isTrue: isTrue,
 	selecionado: selecionado,
 	fone: fone,

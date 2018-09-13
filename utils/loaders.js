@@ -251,6 +251,27 @@ Utils.fnPrefixLoader = function(opt) {
 	}
 };
 
+Utils.getScopePrefixLoader = function(scope) {
+	var meta = scope.meta;
+	return Utils.fnPrefixLoader({
+		prefix: meta.PREFIX+'--',
+		loader: Utils.componentDynamic,
+		getUrl: meta.COMP_URL
+			? function(match) {
+				return meta.COMP_URL + match.href;
+			}
+			: function(match) {
+				return scope.BaseUrl + meta.COMP_PATH_PREFIX + match.href;
+			},
+		setJs: function(match, callback) {
+			scope.compMap[match.path](function(err, js) {
+				match.js = js;
+				callback(err);
+			});
+		}
+	});
+};
+
 Utils.fnLoadManager = function(opt) {
 	var prefixLoaders, plcount;
 	loadManager.loadMany = loadMany;
@@ -325,7 +346,9 @@ Utils.fnLoadManager = function(opt) {
 Utils.vueDynamicComponent = function(opt) {
 	var compFactory = opt.compFactory || {};
 	var getLoader = opt.getLoader;
-	return function dynamicComponent(id) {
+	dynamicComponent.register = registerComponent;
+	return dynamicComponent;
+	function dynamicComponent(id) {
 		var factory = compFactory[id];
 		if (factory) return factory;
 		var loader = getLoader(id);
@@ -337,7 +360,10 @@ Utils.vueDynamicComponent = function(opt) {
 				});
 			};
 		}
-	};
+	}
+	function registerComponent(id, comp) {
+		compFactory[id] = comp;
+	}
 };
 
 })(window._var$);
