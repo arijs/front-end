@@ -2,10 +2,12 @@
 
 var Utils = vars.Utils;
 
-vars.compMap['form-campo/select'] = function(callback) {
+vars.compMap['form-campo/select'] = function(callback, template) {
+	comp.template = template;
 	callback(null, comp);
 };
 var comp = {
+	template: null,
 	props: {
 		campo: {
 			type: Object,

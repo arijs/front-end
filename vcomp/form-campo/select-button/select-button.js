@@ -3,10 +3,12 @@
 var Utils = vars.Utils;
 var hop = Object.prototype.hasOwnProperty;
 
-vars.compMap['form-campo/select-button'] = function(callback) {
+vars.compMap['form-campo/select-button'] = function(callback, template) {
+	comp.template = template;
 	callback(null, comp);
 };
 var comp = {
+	template: null,
 	props: {
 		campo: {
 			type: Object,

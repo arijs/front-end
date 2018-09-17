@@ -1,9 +1,11 @@
 (function(vars) {
 
-vars.compMap['form-campo/checkbox'] = function(callback) {
+vars.compMap['form-campo/checkbox'] = function(callback, template) {
+	comp.template = template;
 	callback(null, comp);
 };
 var comp = {
+	template: null,
 	props: {
 		campo: {
 			type: Object,

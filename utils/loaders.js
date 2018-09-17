@@ -132,18 +132,31 @@ Utils.componentDynamic = function componentDynamic(opt) {
 	var pathHtml = opt.pathHtml;
 	var pathJs   = opt.pathJs  ;
 	var pathCss  = opt.pathCss ;
-	var getResult = opt.getResult;
+	var setResult = opt.setResult;
 	return function(resolve, reject) {
-		var html, js;
+		var html, js, css;
 		var done = function done() {
 			if ((html || !pathHtml) && (js || !pathJs)) {
-				resolve(getResult instanceof Function && getResult());
+				if (setResult instanceof Function) {
+					setResult(function(err) {
+						if (err) {
+							return reject({
+								message: 'Error getting component '+opt.path+' result',
+								error: err
+							});
+						} else {
+							resolve();
+						}
+					});
+				} else {
+					resolve();
+				}
 			}
 		};
 		pathJs && Utils.loadScript(pathJs, function(err) {
 			if (err) {
 				return reject({
-					message: 'Error loading component '+path+' script',
+					message: 'Error loading component '+opt.path+' script',
 					error: err
 				});
 			}
@@ -156,7 +169,7 @@ Utils.componentDynamic = function componentDynamic(opt) {
 		pathHtml && Utils.loadAjax({ url: pathHtml, cb: function(err, response) {
 			if (err) {
 				return reject({
-					message: 'Error loading component '+opt.name+' template',
+					message: 'Error loading component '+opt.path+' template',
 					error: err
 				});
 			}
@@ -167,8 +180,12 @@ Utils.componentDynamic = function componentDynamic(opt) {
 			});
 		}});
 		pathCss && Utils.loadStylesheet(pathCss, function(err) {
+			opt.css = css = { error: err };
+			if (opt.onCss instanceof Function) {
+				opt.onCss(css, opt);
+			}
 			if (err && opt.logCssNotFound) {
-				console.log('Error loading stylesheet for component '+opt.name);
+				console.log('Error loading stylesheet for component '+opt.path);
 			}
 		});
 	};
@@ -197,6 +214,7 @@ Utils.fnPrefixLoader = function(opt) {
 	function match(id) {
 		var match = Utils.compPrefixPath(opt.prefix, id);
 		var getUrl = opt.getUrl;
+		var setResult = opt.setResult;
 		var pathHtml = opt.pathHtml;
 		var pathJs = opt.pathJs;
 		var pathCss = opt.pathCss;
@@ -215,17 +233,34 @@ Utils.fnPrefixLoader = function(opt) {
 				match.js = js;
 				setJs ? setJs(match, callback) : callback();
 			};
-			match.load = function(callback) {
+			match.setOnCss = function(callback) {
+				var css = match.css;
+				if (css) {
+					onCss(css);
+				} else {
+					match.onCss = onCss;
+				}
+				function onCss(css) {
+					callback(css.error);
+				};
+			}
+			match.load = function(callback, params) {
+				match.params = params;
 				return prefixLoader(match, callback);
 			};
+			if (setResult instanceof Function) {
+				match.setResult = function(callback) {
+					setResult(match, callback);
+				};
+			}
 		}
 		return match;
 	}
 	function prefixLoader(match, callback) {
 		var path = match.path;
-		var loadedMap = opt.loadedMap || (opt.loadedMap = loadedMap = {});
-		var comp = loadedMap[path];
-		if (comp) return callback(null, comp);
+		var loadedMap = opt.loadedMap;
+		var comp = loadedMap && loadedMap[path];
+		if (comp) return callback(null, comp, match);
 		var matchListeners = listenersMap[path];
 		if (matchListeners) {
 			matchListeners.push(callback);
@@ -234,17 +269,16 @@ Utils.fnPrefixLoader = function(opt) {
 		listenersMap[path] = matchListeners = [callback];
 		var fnLoad = opt.loader(match);
 		fnLoad(function resolve() {
-			var comp = match.js;
-			comp.template = match.html;
-			loadedMap[path] = comp;
+			comp = match.result;
+			loadedMap && (loadedMap[path] = comp);
 			// return callback(null, comp);
 			for (var i = 0, ii = matchListeners.length; i < ii; i++) {
-				matchListeners[i](null, comp);
+				matchListeners[i](null, comp, match);
 			}
 			listenersMap[path] = void 0;
 		}, function reject(err) {
 			for (var i = 0, ii = matchListeners.length; i < ii; i++) {
-				matchListeners[i](err);
+				matchListeners[i](err, comp, match);
 			}
 			listenersMap[path] = void 0;
 		});
@@ -256,20 +290,20 @@ Utils.getScopePrefixLoader = function(scope) {
 	return Utils.fnPrefixLoader({
 		prefix: meta.PREFIX+'--',
 		loader: Utils.componentDynamic,
-		getUrl: meta.COMP_URL
-			? function(match) {
-				return meta.COMP_URL + match.href;
-			}
-			: function(match) {
-				return scope.BaseUrl + meta.COMP_PATH_PREFIX + match.href;
-			},
-		setJs: function(match, callback) {
-			scope.compMap[match.path](function(err, js) {
-				match.js = js;
+		getUrl: meta.COMP_URL ? getAbsoluteUrl : getRelativeUrl,
+		setResult: function(match, callback) {
+			scope.compMap[match.path](function(err, comp) {
+				match.result = comp;
 				callback(err);
-			});
+			}, match.html, match);
 		}
 	});
+	function getAbsoluteUrl(match) {
+		return meta.COMP_URL + match.href;
+	}
+	function getRelativeUrl(match) {
+		return scope.BaseUrl + meta.COMP_PATH_PREFIX + match.href;
+	}
 };
 
 Utils.fnLoadManager = function(opt) {
@@ -279,10 +313,10 @@ Utils.fnLoadManager = function(opt) {
 	loadManager.getLoader = getLoader;
 	setLoaders(opt.prefixLoaders);
 	return loadManager;
-	function loadManager(id, callback) {
+	function loadManager(id, callback, params) {
 		var loader = getLoader(id);
 		if (loader) {
-			loader.load(callback);
+			loader.load(callback, params);
 		} else {
 			callback(new Error('No loader found for ID '+id));
 		}
@@ -343,26 +377,33 @@ Utils.fnLoadManager = function(opt) {
 	}
 };
 
-Utils.vueDynamicComponent = function(opt) {
+Utils.vueLoadAsyncComponent = function(opt) {
 	var compFactory = opt.compFactory || {};
 	var getLoader = opt.getLoader;
-	dynamicComponent.register = registerComponent;
+	var registerInto = opt.registerInto;
 	return dynamicComponent;
 	function dynamicComponent(id) {
+		id = String(id);
 		var factory = compFactory[id];
 		if (factory) return factory;
 		var loader = getLoader(id);
 		if (loader) {
-			return compFactory[id] = factory = function(resolve, reject) {
+			var caller = this;
+			compFactory[id] = factory = function(resolve, reject) {
 				loader.load(function(err, comp) {
-					if (err) reject(err);
-					else resolve(comp);
-				});
+					if (err) {
+						reject(err);
+					} else {
+						if (registerInto) {
+							registerInto.component(id, comp);
+							compFactory[id] = void 0;
+						}
+						resolve(comp);
+					}
+				}, { caller: caller });
 			};
+			return factory;
 		}
-	}
-	function registerComponent(id, comp) {
-		compFactory[id] = comp;
 	}
 };
 

@@ -21,10 +21,12 @@ var vtmLoad = (function() {
 	};
 })();
 
-vars.compMap['form-campo/texto'] = function(callback) {
+vars.compMap['form-campo/texto'] = function(callback, template) {
+	comp.template = template;
 	callback(null, comp);
 };
 var comp = {
+	template: null,
 	props: {
 		campo: {
 			type: Object,
