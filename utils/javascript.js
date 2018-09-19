@@ -132,6 +132,12 @@ Utils.forEachProperty = function forEachProperty(obj, cb) {
 	}
 };
 
+Utils.callListeners = function(list, args, context) {
+	for (var i = 0, ii = list.length; i < ii; i++) {
+		list[i].apply(context, args);
+	}
+};
+
 Utils.filter = function(list, cb) {
 	return Utils.forEach(list, [], function(val, i) {
 		if (cb(val, i, list)) this.result.push(val);

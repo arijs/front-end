@@ -379,8 +379,10 @@ Utils.fnLoadManager = function(opt) {
 
 Utils.vueLoadAsyncComponent = function(opt) {
 	var compFactory = opt.compFactory || {};
+	var loadingCallbackMap = {};
 	var getLoader = opt.getLoader;
 	var registerInto = opt.registerInto;
+	dynamicComponent.setRegisterInto = setRegisterInto;
 	return dynamicComponent;
 	function dynamicComponent(id) {
 		id = String(id);
@@ -390,20 +392,36 @@ Utils.vueLoadAsyncComponent = function(opt) {
 		if (loader) {
 			var caller = this;
 			compFactory[id] = factory = function(resolve, reject) {
-				loader.load(function(err, comp) {
-					if (err) {
-						reject(err);
-					} else {
-						if (registerInto) {
-							registerInto.component(id, comp);
-							compFactory[id] = void 0;
+				var loadingCallback = loadingCallbackMap[id];
+				var alreadyCalled = Boolean(loadingCallback);
+				if (!loadingCallback) {
+					loadingCallbackMap[id] = loadingCallback = {
+						resolve: [],
+						reject: []
+					};
+				}
+				loadingCallback.resolve.push(resolve);
+				loadingCallback.reject.push(reject);
+				if (!alreadyCalled) {
+					loader.load(function(err, comp) {
+						if (err) {
+							Utils.callListeners(loadingCallback.reject, [err]);
+						} else {
+							if (registerInto) {
+								registerInto.component(id, comp);
+								compFactory[id] = void 0;
+							}
+							Utils.callListeners(loadingCallback.resolve, [comp]);
 						}
-						resolve(comp);
-					}
-				}, { caller: caller });
+						loadingCallbackMap[id] = loadingCallback = void 0;
+					}, { caller: caller });
+				}
 			};
 			return factory;
 		}
+	}
+	function setRegisterInto(ri) {
+		registerInto = ri;
 	}
 };
 
