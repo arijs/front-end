@@ -102,30 +102,56 @@ Utils.loadAjax = function loadAjax(opt) {
 	req.send(opt.body);
 };
 
+function loadServiceParseDefault(callback, err, data, req, opt) {
+	var serviceError = null;
+	var dataError = null;
+	if (err) {
+		serviceError = {
+			message: 'Erro ao carregar o serviço',
+			error: err
+		};
+	}
+	if (!serviceError) {
+		dataError = opt.dataValidate(data, req);
+	}
+	return callback(false, dataError || serviceError, data);
+}
+function loadServiceParseJsonIgnoreType(callback, err, data, req, opt) {
+	if (!err && 'string' === typeof data) {
+		try {
+			data = JSON.parse(data);
+		} catch (e) {
+			err = new AjaxError('JSON inválido', req, e);
+		}
+	}
+	loadServiceParseDefault(callback, err, data, req, opt);
+}
+function loadServiceLoadDefault(opt) {
+	opt.ajax.cb = opt.callback;
+	Utils.loadAjax(opt.ajax);
+}
 Utils.loadService = function(opt) {
 	var req = opt.req;
 	var callback = opt.callback;
-	var reqError = opt.reqValidate(req);
-	if ( reqError ) {
-		return callback(false, reqError);
+	var reqValidate = opt.reqValidate;
+	var reqError;
+	if (reqValidate) {
+		reqError = reqValidate(req);
+		if ( reqError ) {
+			return callback(false, reqError);
+		}
 	}
-	Utils.loadAjax(opt.envPrepare(req, function(err, data, req) {
-		var serviceError = null;
-		var dataError = null;
-		var isJson = false;
-		if (err) {
-			serviceError = {
-				message: 'Erro ao carregar o serviço',
-				error: err
-			};
-		}
-		if (!serviceError) {
-			dataError = opt.dataValidate(data, req);
-		}
-		return callback(false, dataError || serviceError, data);
-	}));
+	var fnParse = opt.parse || loadServiceParseDefault;
+	opt.callback = function(err, data, req) {
+		fnParse(callback, err, data, req, opt);
+	};
+	var fnLoad = opt.load || loadServiceLoadDefault;
+	fnLoad(opt);
 	return callback(true);
 };
+Utils.loadService.parseDefault = loadServiceParseDefault;
+Utils.loadService.parseJsonIgnoreType = loadServiceParseJsonIgnoreType;
+Utils.loadService.loadDefault = loadServiceLoadDefault;
 
 Utils.componentDynamic = function componentDynamic(opt) {
 	//console.log('Component Dynamic: '+id);

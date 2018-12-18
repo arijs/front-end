@@ -182,6 +182,12 @@ function selecionado(campo) {
 	}
 }
 
+function checked(campo) {
+	if (!campo.checked) {
+		return { falta: true };
+	}
+};
+
 function fone(campo) {
 	var valor = campo.valor.replace(rnd, '');
 	if (!reFone.test(valor)) {
@@ -250,6 +256,37 @@ function data_dd_mm_yyyy(campo) {
 	}
 }
 
+function hasFile(campo) {
+	if (!campo.file) {
+		return {falta: true};
+	}
+}
+
+function isFile(campo) {
+	var file = campo.file;
+	if (!('function' === typeof File && file instanceof File)) {
+		return {erro:(typeof file)+' não é um arquivo'};
+	}
+}
+
+function fnFileTypeRegex(regex, message) {
+	return function(campo) {
+		var file = campo.file;
+		if (!regex.test(file.type)) {
+			return {erro:message};
+		}
+	};
+}
+
+function fnFileSizeUnder(maxsize, message) {
+	return function(campo) {
+		var file = campo.file;
+		if (maxsize < file.size) {
+			return {erro:message};
+		}
+	};
+}
+
 function currentStatus(campo) {
 	if (campo.erro || campo.falta) {
 		return {
@@ -264,6 +301,7 @@ return {
 	opcional: opcional,
 	isTrue: isTrue,
 	selecionado: selecionado,
+	checked: checked,
 	fone: fone,
 	fone8: fone8,
 	fone9: fone9,
@@ -272,6 +310,10 @@ return {
 	cpf: cpf,
 	cep: cep,
 	data_dd_mm_yyyy: data_dd_mm_yyyy,
+	hasFile: hasFile,
+	isFile: isFile,
+	fnFileTypeRegex: fnFileTypeRegex,
+	fnFileSizeUnder: fnFileSizeUnder,
 	currentStatus: currentStatus
 };
 

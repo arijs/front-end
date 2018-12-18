@@ -22,10 +22,10 @@ Utils.animate = function(from, to, time, ease, mod, cb) {
 	var start = (new Date()).getTime();
 	var timer = function() {
 		var pos = new Date().getTime() - start;
-		var eased = interMod(pos, from, to, time, ease, mod);
-		cb(eased, pos);
-		if (pos !== time)
-			window.requestAnimationFrame(timer);
+		var posMin = Math.min(time, pos);
+		var eased = interMod(posMin, from, to, time, ease, mod);
+		if (cb(eased, pos)) return;
+		if (posMin !== time) window.requestAnimationFrame(timer);
 	};
 	window.requestAnimationFrame(timer);
 };

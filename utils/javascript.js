@@ -132,6 +132,13 @@ Utils.forEachProperty = function forEachProperty(obj, cb) {
 	}
 };
 
+Utils.isChildOf = function(element, parent) {
+	do {
+		if (element === parent) return true;
+		element = element && element.parentNode;
+	} while (element);
+};
+
 Utils.callListeners = function(list, args, context) {
 	for (var i = 0, ii = list.length; i < ii; i++) {
 		list[i].apply(context, args);
