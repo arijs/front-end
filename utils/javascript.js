@@ -36,8 +36,8 @@ Utils.extend = (function() {
 			var tk = target[key];
 			var so = sk && 'object' === typeof sk;
 			var to = tk && 'object' === typeof tk;
-			var spo = so ? sk.__proto__ === Object.prototype : false;
-			var tpo = to ? tk.__proto__ === Object.prototype : false;
+			var spo = so ? Object.getPrototypeOf(sk) === Object.prototype : false;
+			var tpo = to ? Object.getPrototypeOf(tk) === Object.prototype : false;
 			if (spo && tpo) {
 				subExtend(key, target, source, propertyExtend);
 			} else {

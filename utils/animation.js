@@ -132,4 +132,82 @@ Utils.easing = (function() {
 	};
 })();
 
+Utils.automaticTimer = function(cb) {
+	function step() {
+		if (active) {
+			cb();
+			requestAnimationFrame(step);
+		}
+	}
+	function stop() {
+		active = false;
+	}
+	function start() {
+		if ( !active ) {
+			active = true;
+			requestAnimationFrame(step);
+		}
+	}
+	function isActive() {
+		return active;
+	}
+	var active;
+	return (
+		{ start: start
+		, stop: stop
+		, isActive: isActive
+		});
+}
+
+Utils.refreshManager = function() {
+	function add(n, fn) {
+		var found = false;
+		Utils.forEach(keys, function(k) {
+			if ( k === n ) {
+				found = true;
+				return this._break;
+			}
+		});
+		if ( !found ) {
+			keys.push(n);
+			keyCount++;
+		}
+		map[n] = fn;
+		onchange && onchange();
+	}
+	function rem(n) {
+		Utils.forEach(keys, function(k) {
+			if ( k === n ) {
+				keyCount--;
+				return this._remove;
+			}
+		});
+		map[n] = null;
+		onchange && onchange();
+	}
+	function call() {
+		Utils.forEach(keys, function(k) {
+			var fn = map[k];
+			fn && fn();
+		});
+	}
+	function count() {
+		return keyCount;
+	}
+	function setonchange(fn) {
+		onchange = fn;
+	}
+	var map = {};
+	var keys = [];
+	var keyCount = 0;
+	var onchange;
+	return {
+		add: add,
+		rem: rem,
+		call: call,
+		count: count,
+		setonchange: setonchange
+	};
+}
+
 })(window._var$);
