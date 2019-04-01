@@ -1,9 +1,12 @@
 (function(vars) {
 
 var Utils;
+var string = {};
 vars.Utils = Utils = vars.Utils || {};
+Utils.string = string;
 
-Utils.levenshtein = function levenshtein(a, b) {
+string.levenshtein = levenshtein;
+function levenshtein(a, b) {
 	var cost;
 	var m = a.length;
 	var n = b.length;
@@ -28,9 +31,19 @@ Utils.levenshtein = function levenshtein(a, b) {
 	}
 
 	return r.pop().pop();
-};
+}
 
-Utils.deaccentize = (function() {
+string.levenshteinLength = levenshteinLength;
+function levenshteinLength(a, b) {
+	return {
+		distance: levenshtein(a, b),
+		aLength: a.length,
+		bLength: b.length
+	};
+}
+
+var deaccentize;
+string.deaccentize = deaccentize = (function() {
 
 function setChars(chars, objList) {
 	var ollen = objList && objList.length;
@@ -47,162 +60,191 @@ function setChars(chars, objList) {
 	}
 }
 
-function convert(s, obj) {
+var charBasic = {
+	A: 'ÀÁÂÃÄÅ', a: 'àáâãäå',
+	C: 'Ç',      c: 'ç',
+	E: 'ÈÉÊË',   e: 'èéêë',
+	I: 'ÌÍÎÏ',   i: 'ìíîï',
+	N: 'Ñ',      n: 'ñ',
+	O: 'ÒÓÔÕÖØ', o: 'òóôõöø',
+	U: 'ÙÚÛÜ',   u: 'ùúûü',
+	Y: 'ÝŸ',     y: 'ýÿ'
+};
+var charAdvanced = {
+	A: 'ĀĂĄ',    a: 'āăą',
+	C: 'ĆĈĊČ',   c: 'ćĉċč',
+	D: 'ĎĐ',     d: 'ďđ',
+	E: 'ĒĔĖĘĚ',  e: 'ēĕėęě',
+	G: 'ĜĞĠĢ',   g: 'ĝğġģ',
+	H: 'ĤĦ',     h: 'ĥħ',
+	I: 'ĨĪĬĮİ',  i: 'ĩīĭįı',
+	J: 'Ĵ',      j: 'ĵ',
+	K: 'Ķ',      k: 'ķ',
+	L: 'ĹĻĽĿŁ',  l: 'ĺļľŀł',
+	N: 'ŃŅŇ',    n: 'ńņň',
+	O: 'ŌŎŐ',    o: 'ōŏő',
+	R: 'ŔŖŘ',    r: 'ŕŗř',
+	S: 'ŚŜŞŠ',   s: 'śŝşš',
+	T: 'ŢŤŦ',    t: 'ţťŧ',
+	U: 'ŨŪŬŮŰŲ', u: 'ũūŭůűų',
+	W: 'Ŵ',      w: 'ŵ',
+	Y: 'Ŷ',      y: 'ŷ',
+	Z: 'ŹŻŽ',    z: 'źżž'
+};
+var basic    = {};
+var advanced = {};
+var all      = {};
+
+setChars(charBasic, [basic, all]);
+setChars(charAdvanced, [advanced, all]);
+
+function deaccentize(s, charMap) {
 	var t = '';
+	charMap || (charMap = all);
 	for ( var i = 0, ii = s.length; i < ii; i++ ) {
-		var sc = s[i]
-			, tc = obj[sc];
+		var sc = s[i],
+			tc = charMap[sc];
 		t += tc || sc;
 	}
 	return t;
 }
 
-function fnConvert(obj) {
-	return function(s) {
-		return convert(s, obj);
-	};
-}
-
-var charBasic =
-	{ A: 'ÀÁÂÃÄÅ'
-	, C: 'Ç'
-	, E: 'ÈÉÊË'
-	, I: 'ÌÍÎÏ'
-	, N: 'Ñ'
-	, O: 'ÒÓÔÕÖØ'
-	, U: 'ÙÚÛÜ'
-	, Y: 'ÝŸ'
-	, a: 'àáâãäå'
-	, c: 'ç'
-	, e: 'èéêë'
-	, i: 'ìíîï'
-	, n: 'ñ'
-	, o: 'òóôõöø'
-	, u: 'ùúûü'
-	, y: 'ýÿ'
-	};
-var charAdvanced =
-	{ A: 'ĀĂĄ'
-	, C: 'ĆĈĊČ'
-	, D: 'ĎĐ'
-	, E: 'ĒĔĖĘĚ'
-	, G: 'ĜĞĠĢ'
-	, H: 'ĤĦ'
-	, I: 'ĨĪĬĮİ'
-	, J: 'Ĵ'
-	, K: 'Ķ'
-	, L: 'ĹĻĽĿŁ'
-	, N: 'ŃŅŇ'
-	, O: 'ŌŎŐ'
-	, R: 'ŔŖŘ'
-	, S: 'ŚŜŞŠ'
-	, T: 'ŢŤŦ'
-	, U: 'ŨŪŬŮŰŲ'
-	, W: 'Ŵ'
-	, Y: 'Ŷ'
-	, Z: 'ŹŻŽ'
-	, a: 'āăą'
-	, c: 'ćĉċč'
-	, d: 'ďđ'
-	, e: 'ēĕėęě'
-	, g: 'ĝğġģ'
-	, h: 'ĥħ'
-	, i: 'ĩīĭįı'
-	, j: 'ĵ'
-	, k: 'ķ'
-	, l: 'ĺļľŀł'
-	, n: 'ńņň'
-	, o: 'ōŏő'
-	, r: 'ŕŗř'
-	, s: 'śŝşš'
-	, t: 'ţťŧ'
-	, u: 'ũūŭůűų'
-	, w: 'ŵ'
-	, y: 'ŷ'
-	, z: 'źżž'
-	};
-var basic    = {};
-var advanced = {};
-var all      = {};
-var deaccentize;
-
-setChars(charBasic, [basic, all]);
-setChars(charAdvanced, [advanced, all]);
-
-deaccentize          = fnConvert(all);
-deaccentize.basic    = fnConvert(basic);
-deaccentize.advanced = fnConvert(advanced);
-deaccentize.map = {
-	basic: basic,
-	advanced: advanced,
-	all: all
-};
+deaccentize.basic    = basic;
+deaccentize.advanced = advanced;
+deaccentize.all      = all;
 
 return deaccentize;
 
 })();
 
-Utils.searchClosestString = function(search) {
-	function getViews(raw) {
-		var trim = raw.replace(reSpaces, '');
-		var lower = trim.toLowerCase();
-		var noacc = Utils.deaccentize(lower);
-		return {
-			raw: raw,
-			trim: trim,
-			lower: lower,
-			noacc: noacc
-		};
-	}
-	function getDistance(str) {
-		str = getViews(str);
-		return {
-			raw: Utils.levenshtein(search.raw, str.raw),
-			trim: Utils.levenshtein(search.trim, str.trim),
-			lower: Utils.levenshtein(search.lower, str.lower),
-			noacc: Utils.levenshtein(search.noacc, str.noacc)
-		};
-	}
-	function getClosest(aVal, bVal) {
-		var a = aVal.dist;
-		var b = bVal.dist;
-		return ( a.noacc === b.noacc
-			? ( a.lower === b.lower
-				? ( a.trim === b.trim
-					? ( a.raw <= b.raw
-						? aVal
-						: bVal )
-					: ( a.trim < b.trim
-						? aVal
-						: bVal ) )
-				: ( a.lower < b.lower
-					? aVal
-					: bVal ) )
-			: ( a.noacc < b.noacc
-				? aVal
-				: bVal ) );
-	}
-	var closest;
-	var reSpaces = /^\s*|\s+(?=\s)|\s*$/g;
-	search = getViews(search);
+var reSpaces;
+string.reSpaces = reSpaces = /^\s*|\s+(?=\s)|\s*$/g;
+
+string.getViews = getViews;
+function getViews(raw) {
+	var trim = String(raw).replace(reSpaces, '');
+	var lower = trim.toLowerCase();
+	var noacc = deaccentize(lower);
 	return {
-		compare: function(str, data) {
-			var item = {
-				data: data,
-				dist: getDistance(str)
-			};
-			var next = closest
-				? getClosest(closest, item)
-				: item;
-			// if (closest !== next) {
-			// 	console.log(closest, next);
-			// }
-			closest = next;
-		},
-		getClosest: function() {
-			return closest;
-		}
+		raw: raw,
+		trim: trim,
+		lower: lower,
+		noacc: noacc
 	};
-};
+}
+
+string.getDistance = getDistance;
+function getDistance(a, b) {
+	return {
+		raw: levenshteinLength(a.raw, b.raw),
+		trim: levenshteinLength(a.trim, b.trim),
+		lower: levenshteinLength(a.lower, b.lower),
+		noacc: levenshteinLength(a.noacc, b.noacc)
+	};
+}
+
+string.compareViews = compareViews;
+function compareViews(a, b) {
+	return ( a.noacc !== b.noacc ? ( a.noacc < b.noacc ? -1 : +1 ) :
+		( a.lower !== b.lower ? ( a.lower < b.lower ? -1 : +1 ) :
+		( a.trim !== b.trim ? ( a.trim < b.trim ? -1 : +1 ) :
+		( a.raw !== b.raw ? ( a.raw < b.raw ? -1 : +1 ) :
+		0 ) ) ) );
+}
+
+string.search = search;
+function search(searchTerm, maxCount, maxDistance, merge) {
+	function testMaxDistanceDefault(item) {
+		var dsrc = item.distSrc;
+		var dist = item.dist;
+		if (dsrc.noacc.distance === dsrc.noacc.bLength) {
+			return false;
+		}
+		if (maxDistance >= 0) {
+			if (dist.noacc > maxDistance) {
+				return false;
+			}
+		} else if (String(maxDistance) === String({})) {
+			if (
+				(maxDistance.noacc >= 0 && dist.noacc > maxDistance.noacc) ||
+				(maxDistance.lower >= 0 && dist.lower > maxDistance.lower) ||
+				(maxDistance.trim >= 0 && dist.trim > maxDistance.trim) ||
+				(maxDistance.raw >= 0 && dist.raw > maxDistance.raw)
+			) {
+				return false;
+			}
+		}
+		return true;
+	}
+	function mergeDefault(closest, item, index, total) {
+		if (maxCount > 0) {
+			if (index < maxCount) {
+				closest.splice(index, 0, item);
+				closest.splice(maxCount, total - maxCount);
+			}
+		} else {
+			closest.splice(index, 0, item);
+		}
+		return closest;
+	}
+	function getDistanceObject(str, data) {
+		var d = getDistance(searchTerm, getViews(str));
+		return {
+			data: data,
+			str: str,
+			distSrc: d,
+			dist: {
+				raw: d.raw.distance + d.raw.aLength - d.raw.bLength,
+				trim: d.trim.distance + d.trim.aLength - d.trim.bLength,
+				lower: d.lower.distance + d.lower.aLength - d.lower.bLength,
+				noacc: d.noacc.distance + d.noacc.aLength - d.noacc.bLength
+			}
+		};
+	}
+	function insert(str, data) {
+		var item = getDistanceObject(str, data);
+		if (testMaxDistance(item)) {
+			for (var i = 0, ii = closest.length; i < ii; i++) {
+				var itemComp = compareViews(item.dist, closest[i].dist);
+				if (itemComp < 0) break;
+			}
+			closest = merge(closest, item, i, ii);
+		}
+	}
+	function getClosest(cutDistance) {
+		var c = closest.slice();
+		var count = c.length;
+		var dFirst = (c[0] || {}).dist;
+		if (cutDistance && dFirst) {
+			var dCut = {
+				raw: cutDistance.raw == null ? null : dFirst.raw + cutDistance.raw,
+				trim: cutDistance.trim == null ? null : dFirst.trim + cutDistance.trim,
+				lower: cutDistance.lower == null ? null : dFirst.lower + cutDistance.lower,
+				noacc: cutDistance.noacc == null ? null : dFirst.noacc + cutDistance.noacc
+			}
+			for (var i = 1; i < count; i++) {
+				var d = c[i].dist;
+				if (
+					( dCut.raw != null && d.raw > dCut.raw ) ||
+					( dCut.trim != null && d.trim > dCut.trim ) ||
+					( dCut.lower != null && d.lower > dCut.lower ) ||
+					( dCut.noacc != null && d.noacc > dCut.noacc )
+				) break;
+			}
+			c = c.slice(0, i);
+		}
+		return c;
+	}
+	var testMaxDistance = maxDistance instanceof Function ? maxDistance : testMaxDistanceDefault;
+	if (null == maxCount) maxCount = 0;
+	if (!(merge instanceof Function)) merge = mergeDefault;
+	var closest = [];
+	searchTerm = getViews(searchTerm);
+	return {
+		distance: getDistanceObject,
+		insert: insert,
+		getClosest: getClosest
+	};
+}
 
 })(window._var$);
