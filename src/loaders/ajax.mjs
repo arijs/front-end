@@ -150,7 +150,9 @@ export function parseGetError(resp) {
 }
 
 export function parseResponse(resp) {
-	parseOptTypes(resp);
+	if (!resp.loading) {
+		parseOptTypes(resp);
+	}
 	parseValidate(resp);
 	parseGetError(resp);
 	return resp.opt.cb(resp);
