@@ -7,6 +7,10 @@ export function extendCustom(method, sourceProps, target) {
 		method = propertyOverwrite;
 	}
 	var argc = arguments.length;
+	if (sourceProps && argc === 3) {
+		arguments[3] = sourceProps;
+		argc = 4;
+	}
 	for (var i = 3; i < argc; i++) {
 		var source = arguments[i];
 		var props = sourceProps || source;
@@ -25,6 +29,14 @@ export function fnExtendCustom(method, sourceProps) {
 	return function extend() {
 		var args = slice.call(arguments);
 		args.unshift(method, sourceProps);
+		return extendCustom.apply(this, args);
+	}
+}
+
+export function fnOptionsCustom(method) {
+	return function extend() {
+		var args = slice.call(arguments);
+		args.unshift(method);
 		return extendCustom.apply(this, args);
 	}
 }
@@ -52,8 +64,13 @@ export function propertyOverwrite(key, target, source) {
 	target[key] = source[key];
 }
 export function propertyNewOnly(key, target, source) {
+	if (!hop.call(target, key)) {
+		target[key] = source[key];
+	}
+}
+export function propertyNewError(key, target, source) {
 	if (hop.call(target, key)) {
-		throw new Error('Objeto já contem uma propriedade '+key+': '+String(target[key]).substr(0, 32));
+		throw new Error('Object already contains property '+key+': '+String(target[key]).substr(0, 32));
 	}
 	target[key] = source[key];
 }
@@ -71,8 +88,11 @@ export var propertyObjectCreate = fnPropertyExtend(function(key, target, source,
 
 export var extend = fnExtendCustom(propertyOverwrite);
 export var extendNewOnly = fnExtendCustom(propertyNewOnly);
+export var extendNewError = fnExtendCustom(propertyNewError);
 export var extendHopOnly = fnExtendCustom(propertyHopOnly);
 export var extendDeep = fnExtendCustom(propertyObjectModify);
 export var extendMerge = fnExtendCustom(propertyObjectCreate);
+
+export var options = fnOptionsCustom(propertyOverwrite);
 
 export default extend;
