@@ -1,6 +1,6 @@
 import printfParse from './parse';
 import printfFill from './fill';
-import dictionary from '../state/dictionary';
+import dictionary from '../state/dictionary/static';
 
 function printf(str, vars, mods, cbError, debug) {
 	if (debug) debugger;

@@ -13,55 +13,64 @@ function errorNotFound(key, name, list) {
 }
 
 function onErrorDefault(err) {
-	throw err;
+	return console.warn(err);
 }
 
-export default function dictionaryDynamicList(list, name, onError = onErrorDefault) {
-	return {
-		name,
-		find,
-		has,
-		get,
-		set,
-		listenerAdd,
-		listenerRemove,
-	};
-	function find(key) {
-		var found;
-		each(list, function(dict) {
-			if (dict.has(key)) {
-				found = dict;
-				return this._break;
-			}
-		});
-		return found;
-	}
-	function apply(key, fn) {
-		var found = find(key);
-		if (found) return fn(found);
-		return onError(errorNotFound(key, name, list));
-	}
-	function has(key) {
-		return Boolean(find(key));
-	}
-	function get(key, listener) {
-		apply(key, function(dict) {
-			return dict.get(key, listener);
-		});
-	}
-	function set(key, val) {
-		apply(key, function(dict) {
-			return dict.set(key, val);
-		});
-	}
-	function listenerAdd(key, listener) {
-		apply(key, function(dict) {
-			return dict.listenerAdd(key, listener);
-		});
-	}
-	function listenerRemove(key, listener) {
-		apply(key, function(dict) {
-			return dict.listenerRemove(key, listener);
-		});
-	}
+function DictionaryDynamicList(list, name, onError) {
+	this._list = list;
+	this.name = name;
+	if (onError) this.onError = onError;
 }
+
+DictionaryDynamicList.prototype = {
+	constuctor: DictionaryDynamicList,
+	_list: null,
+	name: null,
+	onError: onErrorDefault,
+	find,
+	apply,
+	has,
+	get,
+	set,
+	listenerAdd,
+	listenerRemove,
+};
+function find(key) {
+	return each(this._list, function(dict) {
+		if (dict.has(key)) {
+			this.result = dict;
+			return this._break;
+		}
+	});
+}
+function apply(key, fn, onKeyError) {
+	var found = this.find(key);
+	if (found) return fn.call(this, found);
+	if (!(onKeyError instanceof Function)) onKeyError = this.onError;
+	return onKeyError.call(this, errorNotFound(key, this.name, this._list));
+}
+function has(key) {
+	return Boolean(this.find(key));
+}
+function get(key, listener, onKeyError) {
+	return this.apply(key, function(dict) {
+		return dict.get(key, listener);
+	}, onKeyError);
+}
+function set(key, val, onKeyError) {
+	return this.apply(key, function(dict) {
+		return dict.set(key, val);
+	}, onKeyError);
+}
+function listenerAdd(key, listener, onKeyError) {
+	return this.apply(key, function(dict) {
+		return dict.listenerAdd(key, listener);
+	}, onKeyError);
+}
+function listenerRemove(key, listener, onKeyError) {
+	return this.apply(key, function(dict) {
+		return dict.listenerRemove(key, listener);
+	}, onKeyError);
+}
+
+export default DictionaryDynamicList;

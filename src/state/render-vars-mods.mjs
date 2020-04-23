@@ -1,27 +1,37 @@
 
-export default function fnRenderVarsMods(vars, mods, cbError, name = 'renderVarsMods') {
+export function cbErrorDefault(e) {
+	return console.warn(e);
+}
+
+export default function fnRenderVarsMods(vars, mods, cbError = cbErrorDefault, name = 'renderVarsMods') {
 	return renderVarsMods;
 	function renderVarsMods(valKey, modKey, params, onUpdate) {
 		var val, mod, valOld, modOld;
-		if (!vars.has(valKey)) cbError(new Error(
-			name+': value with key '+
-			JSON.stringify(valKey)+' not found'
-		));
-		val = vars.get(valKey, function(valNew) {
-			valOld = val;
-			val = valNew;
-			onUpdate(withValueMod(), withOld());
-		});
-		if (modKey) {
-			if (!mods.has(modKey)) cbError(new Error(
-				name+': printf mod with key '+
-				JSON.stringify(modKey)+' not found'
-			));
-			mod = mods.get(modKey, function(modNew) {
-				modOld = mod;
-				mod = modNew;
+		if (vars.has(valKey)) {
+			val = vars.get(valKey, function(valNew) {
+				valOld = val;
+				val = valNew;
 				onUpdate(withValueMod(), withOld());
-			});
+			}, cbError);
+		} else {
+			cbError(new Error(
+				name+': value with key '+
+				JSON.stringify(valKey)+' not found'
+			));
+		}
+		if (modKey) {
+			if (mods.has(modKey)) {
+				mod = mods.get(modKey, function(modNew) {
+					modOld = mod;
+					mod = modNew;
+					onUpdate(withValueMod(), withOld());
+				}, cbError);
+			} else {
+				cbError(new Error(
+					name+': printf mod with key '+
+					JSON.stringify(modKey)+' not found'
+				));
+			}
 		}
 		return withValueMod();
 		function withValueMod() {

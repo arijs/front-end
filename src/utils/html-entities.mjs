@@ -32,7 +32,7 @@ export function encodeHtmlAttribute (str, hex) {
 
 export function decode (str) {
 	var div = document.createElement('div');
-	div.innerHTML = htmlEntitiesEncodeCharRegex(str, /[<>]/g);
+	div.innerHTML = encodeCharRegex(str, /[<>]/g);
 	return div.firstChild.nodeValue;
 }
 

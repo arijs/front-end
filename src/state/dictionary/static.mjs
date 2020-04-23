@@ -6,3 +6,5 @@ export function dictionary(dict) {
 		get: function(key) { return dict ? dict[key] : void 0 }
 	};
 }
+
+export default dictionary;

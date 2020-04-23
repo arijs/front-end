@@ -46,3 +46,5 @@ export function printfFillItem(parsed, vars, mods, cbError) {
 		return value;
 	}
 }
+
+export default printfFill;

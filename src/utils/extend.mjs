@@ -8,7 +8,7 @@ export function extendCustom(method, sourceProps, target) {
 	}
 	var argc = arguments.length;
 	if (sourceProps && argc === 3) {
-		arguments[3] = sourceProps;
+		arguments[3] = target;
 		argc = 4;
 	}
 	for (var i = 3; i < argc; i++) {
@@ -90,8 +90,8 @@ export var extend = fnExtendCustom(propertyOverwrite);
 export var extendNewOnly = fnExtendCustom(propertyNewOnly);
 export var extendNewError = fnExtendCustom(propertyNewError);
 export var extendHopOnly = fnExtendCustom(propertyHopOnly);
-export var extendDeep = fnExtendCustom(propertyObjectModify);
-export var extendMerge = fnExtendCustom(propertyObjectCreate);
+export var extendDeepModify = fnExtendCustom(propertyObjectModify);
+export var extendDeepCreate = fnExtendCustom(propertyObjectCreate);
 
 export var options = fnOptionsCustom(propertyOverwrite);
 

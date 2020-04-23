@@ -1,3 +1,4 @@
+import {queryParse} from '../utils/query-string';
 
 export function printfParse(str) {
 	var re = /\{\s*(?:([^{}]+?)(?:\s*\{([^{}]*)\})?\s*:)?\s*([^{}]+?)\s*\}/i;
@@ -12,3 +13,5 @@ export function printfParse(str) {
 	if (str.length) parsed.push({text: str});
 	return parsed;
 }
+
+export default printfParse;

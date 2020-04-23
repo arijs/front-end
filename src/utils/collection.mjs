@@ -9,11 +9,22 @@ export function arrayFrom(val) {
 	}
 }
 
+export function arrayConcat(val) {
+	switch (true) {
+		case val instanceof Array: return val;
+		case void 0 == val: return [];
+		default: return [val];
+	}
+}
+
 export function isCollection(obj) {
-	var hop = Object.prototype.hasOwnProperty;
 	var propEnum = Object.prototype.propertyIsEnumerable;
+	var len, intLen;
 	return obj &&
-		hop.call(obj, 'length') &&
+		// [Object NodeList].hasOwnProperty('length') === false
+		'length' in obj &&
 		!propEnum.call(obj, 'length') &&
-		parseInt(obj.length) === obj.length;
+		(len = obj.length,
+			intLen = parseInt(len),
+			intLen === len && intLen >= 0);
 }
