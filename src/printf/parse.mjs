@@ -1,14 +1,33 @@
 import {queryParse} from '../utils/query-string';
 
-export function printfParse(str) {
-	var re = /\{\s*(?:([^{}]+?)(?:\s*\{([^{}]*)\})?\s*:)?\s*([^{}]+?)\s*\}/i;
-	var parsed = [], m;
-	// while (m = re.exec(str)) {
-	while (m = re.exec(str)) {
-		if (m.index > 0) parsed.push({text: String(str).substr(0, m.index)});
+var re = /\{\s*(?:([^{}]+?)(?:\s*\{([^{}]*)\})?\s*:)?\s*([^{}]+?)\s*\}/i;
+
+export function printfGetMatch(str) {
+	var m = re.exec(str);
+	if (m) {
 		m[2] = m[2] && queryParse(m[2]);
-		parsed.push({ text: m[0], mod: m[1], params: m[2], key: m[3] });
-		str = String(str).substr(m.index + m[0].length);
+		return {
+			text: m[0],
+			mod: m[1],
+			params: m[2],
+			key: m[3],
+			index: m.index,
+			indexEnd: m.index + m[0].length,
+		};
+	}
+}
+
+export function printfParse(str) {
+	var parsed = [], index, m;
+	str = String(str);
+	// while (m = re.exec(str)) {
+	while (m = printfGetMatch(str)) {
+		index = m.index;
+		if (index > 0) parsed.push({text: str.substr(0, index)});
+		// m[2] = m[2] && queryParse(m[2]);
+		// parsed.push({ text: m[0], mod: m[1], params: m[2], key: m[3] });
+		parsed.push(m);
+		str = str.substr(m.indexEnd);
 	}
 	if (str.length) parsed.push({text: str});
 	return parsed;
