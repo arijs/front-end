@@ -39,6 +39,7 @@ function set(key, val) {
 	var dict = this._dict;
 	var mapNextTick = this._mapNextTick;
 	var mapListeners = this._mapListeners;
+	var oldLimit = this._oldLimit;
 	var old = dict[key];
 	var keyNext = mapNextTick[key];
 	if (!keyNext) {
