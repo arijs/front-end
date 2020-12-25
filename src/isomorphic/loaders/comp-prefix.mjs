@@ -79,28 +79,45 @@ function prefixLoader(match) {
 	var isLoading = mapLoading[path];
 	if (isLoading) return isLoading;
 	// var def = deferredPromise(match);
-	var promise = new Promise(function(resolve, reject) {
-		var {onLoad, onLoadError} = match;
-		match.onLoad = function(load) {
-			mapLoading[path] = undefined;
-			if (load.error) {
-				if (onLoadError instanceof Function) {
-					onLoadError(match, load);
-				}
-				reject(load.error);//def.
-				// console.log('/** prefix comp reject **/', load.error);
-			} else {
-				var loadMod;
-				if (onLoad instanceof Function) {
-					loadMod = onLoad(match, load);
-				}
-				mapCache[path] = load = loadMod || load;//def.
-				resolve(load);//def.
-			}
-		};
-		match.loadComponent(match);
-		// return def.promise;
+	console.log(' +  call loadComp prefix for', match.prefix, match.path);
+	var promise = match.loadComponent(match).then(function(load) {
+		console.log(' +  resolve loadComp prefix', match.prefix, match.path);
+		var {onLoad} = match;
+		var loadMod;
+		if (onLoad instanceof Function) {
+			loadMod = onLoad(match, load);
+		}
+		return mapCache[path] = load = loadMod || load;//def.
+	}).catch(function(load) {
+		console.log(' +  reject loadComp prefix', match.prefix, match.path, load);
+		var {onLoadError} = match;
+		if (onLoadError instanceof Function) {
+			onLoadError(match, load);
+		}
+		throw load;
 	});
+	// var promise = new Promise(function(resolve, reject) {
+	// 	var {onLoad, onLoadError} = match;
+	// 	match.onLoad = function(load) {
+	// 		mapLoading[path] = undefined;
+	// 		if (load.error) {
+	// 			if (onLoadError instanceof Function) {
+	// 				onLoadError(match, load);
+	// 			}
+	// 			reject(load.error);//def.
+	// 			// console.log('/** prefix comp reject **/', load.error);
+	// 		} else {
+	// 			var loadMod;
+	// 			if (onLoad instanceof Function) {
+	// 				loadMod = onLoad(match, load);
+	// 			}
+	// 			mapCache[path] = load = loadMod || load;//def.
+	// 			resolve(load);//def.
+	// 		}
+	// 	};
+	// 	match.loadComponent(match);
+	// 	// return def.promise;
+	// });
 	return mapLoading[path] = promise;//def.
 }
 

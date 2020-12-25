@@ -8,7 +8,7 @@ export default async function loadComponent(opt) {
 		html: loadAjax,
 		js: loadScript,
 		css: loadStylesheet,
-		...(opt.loaders || null),
+		...opt.loaders,
 	};
 	return isomorphicComponent(opt);
 }

@@ -1,5 +1,4 @@
-import forEach from '../utils/for-each.mjs';
-import forEachProperty from '../utils/for-each-property.mjs';
+import inspectObj from '../utils/inspect.mjs';
 
 function echo(x) {
 	return x;
@@ -10,15 +9,14 @@ function prepareObjLoad(src, name, opt) {
 	switch (typeof src) {
 		case 'string': obj = { url: src }; break;
 		case 'object': obj = { ...src }; break;
-		default: obj = {};
 	}
 	return {
 		name,
 		...obj,
-		loader: obj.loader instanceof Function
+		loader: obj && obj.loader instanceof Function
 			? obj.loader
 			: opt.loaders?.[name],
-		onLoad: obj.onLoad instanceof Function
+		onLoad: obj && obj.onLoad instanceof Function
 			? obj.onLoad
 			: opt.onLoad?.[name] || echo,
 		done: false,
@@ -27,14 +25,20 @@ function prepareObjLoad(src, name, opt) {
 	};
 }
 
-async function callObjLoader(opt, obj, arg) {
+async function callObjLoader(opt, obj, fname, order, itemLoad, arg) {
+	console.log(' +  comp load', obj.name || '!'+fname, 'for', opt.prefix, opt.path, !obj.name && obj);
 	try {
 		var data = await obj.loader(arg || obj);
 		obj.error = null;
 		obj.data = obj.onLoad(data, opt, obj);
+		console.log(' +  O done load', obj.name, 'for', opt.prefix, opt.path, inspectObj(data, 1, 32));
 	} catch (error) {
 		obj.error = error;
+		console.log(' +  X fail load', obj.name, 'for', opt.prefix, opt.path, error);
 	}
+	obj.done = true;
+	order.push(obj);
+	itemLoad();
 }
 
 async function compLoader(load) {
@@ -49,20 +53,15 @@ async function compLoader(load) {
 			err.join(', ')+' not found'
 		);
 	} else {
-		js.name = load.opt.id;
-		setCompHtml(js, html, load);
+		js.name = load.opt.name;
+		js = await setCompHtml(js, html, load);
+		console.log(' +  comp options', js);
 		return js;
 	}
 }
 
 export default function loadComponent(opt) {
 	return new Promise(function(resolve, reject) {
-		var {
-			html,
-			js,
-			css,
-			comp
-		} = opt;
 		var order = [];
 		var load = {
 			opt,
@@ -74,40 +73,62 @@ export default function loadComponent(opt) {
 			error: null,
 		};
 		var done = false;
-		comp = load.comp = prepareObjLoad(comp, comp?.name || 'comp', opt);
-		comp.loader = comp.loader instanceof Function
-			? comp.loader
-			: compLoader;
-		forEachProperty({html, js, css}, function(src, name) {
+		initComp(opt.comp);
+		initAsset(opt.html, 'html');
+		initAsset(opt.js  , 'js'  );
+		initAsset(opt.css , 'css' );
+		function initComp(comp) {
+			load.comp = comp = prepareObjLoad(comp, comp?.name || 'comp', opt);
+			comp.loader = comp.loader instanceof Function
+				? comp.loader
+				: compLoader;
+		}
+		function initAsset(src, name) {
 			var obj = load[name] = prepareObjLoad(src, name, opt);
-			callObjLoader(opt, obj).then(function() {
-				obj.done = true;
-				order.push(obj);
-				itemLoad();
-			});
-		});
+			if (src === opt.js) {
+				obj.jsContext = obj.jsContext || opt.jsContext;
+				// console.log(' +  load comp js', obj);
+			}
+			callObjLoader(opt, obj, name, order, itemLoad);
+		}
 		function anyError() {
 			var list = [];
-			forEach([html, js, css, comp], function(item) {
-				if (item.error) {
-					list.push(
-						'('+item.name+': '+
-						String(item.error.message || item.error)+')'
-					);
-				}
-			});
+			testErrorItem(load.html, list);
+			testErrorItem(load.js  , list);
+			testErrorItem(load.css , list);
+			testErrorItem(load.comp, list);
 			if (list.length) {
 				load.error = new Error(
-					'Component '+opt.name+': '+opt.id+': '+
+					'Component '+opt.name+': '+
 					list.join(', ')
 				);
 			}
 		}
+		function testErrorItem(item, list) {
+			if (item.error) {
+				list.push(
+					'('+item.name+': '+
+					String(item.error.message || item.error)+')'
+				);
+			}
+		}
 		function itemLoad() {
+			var html = load.html.done;
+			var js   = load.js  .done;
+			var css  = load.css .done;
+			var comp = load.comp.done;
+			console.log(
+				' +  item load for', opt.prefix, opt.path,
+				html ? 'O' : 'X', 'html,',
+				js   ? 'O' : 'X', 'js,',
+				css  ? 'O' : 'X', 'css,',
+				comp ? 'O' : 'X', 'comp,',
+				done ? 'O' : 'X', 'final'
+			);
 			if (done) {
 				// done already called
-			} else if (html.done && js.done && (css.done || false === opt.waitCss)) {
-				if (comp.done) {
+			} else if (html && js && (css || false === opt.waitCss)) {
+				if (comp) {
 					anyError();
 					done = true;
 					if (load.error) {
@@ -116,11 +137,7 @@ export default function loadComponent(opt) {
 						resolve(load);
 					}
 				} else {
-					callObjLoader(opt, comp, load).then(function() {
-						comp.done = true;
-						order.push(comp);
-						itemLoad();
-					});
+					callObjLoader(opt, load.comp, 'comp', order, itemLoad, load);
 				}
 			}
 		}

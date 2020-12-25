@@ -1,4 +1,6 @@
 import forEach from '../utils/for-each.mjs';
+import forEachProperty from '../utils/for-each-property.mjs';
+import inspectObj from '../utils/inspect.mjs';
 
 function nop() {}
 
@@ -9,17 +11,16 @@ export default function initVueLoaders(comps, {
 	Vue,
 	compile,
 	jsGlobal,
+	jsContext,
 	prefixMatcher,
 }) {
 
 forEach(comps, function(Comp, i) {
-	if (!jsGlobal) {
-		console.log('iso:initVueLoaders', compOpt);
-	}
 	jsGlobal[Comp.name] = comps[i] = Comp = prefixMatcher({
 		map: {}, // the js file will save the component options here
 		mapCss: {}, // this is used in the prerender to get all css files
 		setCompHtml,
+		jsContext,
 		...Comp,
 		onLoad: {
 			js: function(_, {path}) {
@@ -28,7 +29,7 @@ forEach(comps, function(Comp, i) {
 			},
 			css: function(data, match) {
 				Comp.mapCss[match.path] = {
-					match,
+					opt: match,
 					data: Comp.storeCssData ? data : null
 				};
 			},
@@ -53,9 +54,10 @@ return {
 	resolveAsyncComponent,
 	getCompsCss,
 	getCompsLoad,
+	destroy,
 };
 
-function setCompHtml(js, html) {
+async function setCompHtml(js, html) {
 	if (compile instanceof Function) {
 		html = compile(html).code;
 		html = Function.call(null, 'Vue', html);
@@ -63,6 +65,7 @@ function setCompHtml(js, html) {
 	} else {
 		js.template = html;
 	}
+	return js;
 }
 
 function resolveUserCompLoader(name) {
@@ -92,6 +95,16 @@ function resolveUserComponent(name) {
 	} else if (loader) {
 		// console.log('/** user component found **/', match.name, name);
 		onResolveFound(match, name);
+		console.log(' +  attempt to load', name);
+		var t = Date.now();
+		Promise.race([
+			loader(),
+			rejectTimeout(5000)
+		]).then(function(comp) {
+			console.log(' +  comp loaded in '+(Date.now()-t), name, inspectObj(comp, 1));
+		}).catch(function() {
+			console.log(' +  comp load failed in '+(Date.now()-t), name);
+		});
 		return loader;
 	} else {
 		// console.log('/** user component NOT found **/', name);
@@ -99,11 +112,21 @@ function resolveUserComponent(name) {
 	}
 }
 
+function rejectTimeout(time) {
+	return new Promise(function(resolve, reject) {
+		setTimeout(reject, time || 0);
+	});
+}
+
 function resolveAsyncComponent(name) {
 	var loader = resolveUserComponent(name);
 	return loader instanceof Function
 		? Vue.defineAsyncComponent({
-			loader,
+			loader: function () {
+				return loader().then(function(load) {
+					return load.comp.data;
+				});
+			},
 			name: 'loader--'+name,
 		})
 		: undefined;
@@ -136,6 +159,16 @@ function getCompsLoad() {
 		});
 	});
 	return list;
+}
+
+function destroy() {
+	forEach(comps, function(comp) {
+		comp.map = undefined;
+		comp.mapCss = undefined;
+		comp.mapCache = undefined;
+		comp.mapLoading = undefined;
+		return this._remove;
+	});
 }
 
 }
