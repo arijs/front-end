@@ -26,15 +26,15 @@ function prepareObjLoad(src, name, opt) {
 }
 
 async function callObjLoader(opt, obj, fname, order, itemLoad, arg) {
-	console.log(' +  comp load', obj.name || '!'+fname, 'for', opt.prefix, opt.path, !obj.name && obj);
+	// console.log(' +  comp load', obj.name || '!'+fname, 'for', opt.prefix, opt.path, !obj.name && obj);
 	try {
 		var data = await obj.loader(arg || obj);
 		obj.error = null;
 		obj.data = obj.onLoad(data, opt, obj);
-		console.log(' +  O done load', obj.name, 'for', opt.prefix, opt.path, inspectObj(data, 1, 32));
+		// console.log(' +  O done load', obj.name, 'for', opt.prefix, opt.path, inspectObj(data, 1, 32));
 	} catch (error) {
 		obj.error = error;
-		console.log(' +  X fail load', obj.name, 'for', opt.prefix, opt.path, error);
+		// console.log(' +  X fail load', obj.name, 'for', opt.prefix, opt.path, error);
 	}
 	obj.done = true;
 	order.push(obj);
@@ -55,7 +55,7 @@ async function compLoader(load) {
 	} else {
 		js.name = load.opt.name;
 		js = await setCompHtml(js, html, load);
-		console.log(' +  comp options', js);
+		// console.log(' +  comp options', js);
 		return js;
 	}
 }
@@ -87,6 +87,7 @@ export default function loadComponent(opt) {
 			var obj = load[name] = prepareObjLoad(src, name, opt);
 			if (src === opt.js) {
 				obj.jsContext = obj.jsContext || opt.jsContext;
+				obj.jsOnError = obj.jsOnError || opt.jsOnError;
 				// console.log(' +  load comp js', obj);
 			}
 			callObjLoader(opt, obj, name, order, itemLoad);
@@ -117,14 +118,14 @@ export default function loadComponent(opt) {
 			var js   = load.js  .done;
 			var css  = load.css .done;
 			var comp = load.comp.done;
-			console.log(
-				' +  item load for', opt.prefix, opt.path,
-				html ? 'O' : 'X', 'html,',
-				js   ? 'O' : 'X', 'js,',
-				css  ? 'O' : 'X', 'css,',
-				comp ? 'O' : 'X', 'comp,',
-				done ? 'O' : 'X', 'final'
-			);
+			// console.log(
+			// 	' +  item load for', opt.prefix, opt.path,
+			// 	html ? 'O' : 'X', 'html,',
+			// 	js   ? 'O' : 'X', 'js,',
+			// 	css  ? 'O' : 'X', 'css,',
+			// 	comp ? 'O' : 'X', 'comp,',
+			// 	done ? 'O' : 'X', 'final'
+			// );
 			if (done) {
 				// done already called
 			} else if (html && js && (css || false === opt.waitCss)) {

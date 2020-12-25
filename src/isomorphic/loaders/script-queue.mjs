@@ -7,7 +7,17 @@ function processResultDefault(x) {
 	// nop
 }
 
-export default async function loadScriptQueue({queue, processItem, processResult, loadScript}) {
+function addJsContext(item, jsContext, jsOnError) {
+	return {
+		jsContext,
+		jsOnError,
+		...('string' === typeof item
+			? {url: item}
+			: item)
+	};
+}
+
+export default async function loadScriptQueue({queue, jsContext, jsOnError, processItem, processResult, loadScript}) {
 	var next, res;
 	processItem = processItem instanceof Function
 		? processItem
@@ -15,13 +25,15 @@ export default async function loadScriptQueue({queue, processItem, processResult
 	processResult = processResult instanceof Function
 		? processResult
 		: processResultDefault;
-	while (queue.length && !next) {
+	while (queue.length) {
 		next = queue.shift();
+		// console.log('  ~ load script queue', typeof next, queue.length, 'remaining');
 		if (!next) continue;
-		next = processItem(next);
+		next = processItem(addJsContext(next, jsContext, jsOnError));
 		res = await loadScript(next);
 		processResult(next, res);
 	}
+	// console.log('  ~ load script queue', typeof next, queue.length, 'remaining');
 }
 /*
 import loadScriptDefault from './script';

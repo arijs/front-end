@@ -22,20 +22,28 @@ export function scriptToFunction(script, args) {
 	return Function.apply(undefined, args.concat(script));
 }
 
-export function evalKeysValues(script, keys, values) {
+export function evalKeysValues(script, keys, values, onError) {
 	script = scriptToFunction(script, keys);
 	return { run, runWith };
+	function runValues(values) {
+		try {
+			return script.apply(this, values);
+		} catch (error) {
+			onError instanceof Function && onError(error, values);
+			throw error;
+		}
+	}
 	function run() {
-		return script.apply(this, values);
+		return runValues(values);
 	}
 	function runWith(ctx) {
-		return script.apply(this, getValuesFromKeys(keys, ctx));
+		return runValues(getValuesFromKeys(keys, ctx));
 	}
 }
 
-export function evalContext(script, ctx) {
+export function evalContext(script, ctx, onError) {
 	const {keys, values} = contextKeysValues(ctx);
-	return evalKeysValues(script, keys, values);
+	return evalKeysValues(script, keys, values, onError);
 }
 
 export default evalContext;

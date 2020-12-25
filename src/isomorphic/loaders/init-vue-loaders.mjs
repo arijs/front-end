@@ -1,6 +1,6 @@
 import forEach from '../utils/for-each.mjs';
 import forEachProperty from '../utils/for-each-property.mjs';
-import inspectObj from '../utils/inspect.mjs';
+// import inspectObj from '../utils/inspect.mjs';
 
 function nop() {}
 
@@ -12,6 +12,7 @@ export default function initVueLoaders(comps, {
 	compile,
 	jsGlobal,
 	jsContext,
+	jsOnError,
 	prefixMatcher,
 }) {
 
@@ -21,6 +22,7 @@ forEach(comps, function(Comp, i) {
 		mapCss: {}, // this is used in the prerender to get all css files
 		setCompHtml,
 		jsContext,
+		jsOnError,
 		...Comp,
 		onLoad: {
 			js: function(_, {path}) {
@@ -95,16 +97,16 @@ function resolveUserComponent(name) {
 	} else if (loader) {
 		// console.log('/** user component found **/', match.name, name);
 		onResolveFound(match, name);
-		console.log(' +  attempt to load', name);
-		var t = Date.now();
-		Promise.race([
-			loader(),
-			rejectTimeout(5000)
-		]).then(function(comp) {
-			console.log(' +  comp loaded in '+(Date.now()-t), name, inspectObj(comp, 1));
-		}).catch(function() {
-			console.log(' +  comp load failed in '+(Date.now()-t), name);
-		});
+		// console.log(' +  attempt to load', name);
+		// var t = Date.now();
+		// Promise.race([
+		// 	loader(),
+		// 	rejectTimeout(5000)
+		// ]).then(function(comp) {
+		// 	console.log(' +  comp loaded in '+(Date.now()-t), name, inspectObj(comp, 1));
+		// }).catch(function() {
+		// 	console.log(' +  comp load failed in '+(Date.now()-t), name);
+		// });
 		return loader;
 	} else {
 		// console.log('/** user component NOT found **/', name);
@@ -112,11 +114,11 @@ function resolveUserComponent(name) {
 	}
 }
 
-function rejectTimeout(time) {
-	return new Promise(function(resolve, reject) {
-		setTimeout(reject, time || 0);
-	});
-}
+// function rejectTimeout(time) {
+// 	return new Promise(function(resolve, reject) {
+// 		setTimeout(reject, time || 0);
+// 	});
+// }
 
 function resolveAsyncComponent(name) {
 	var loader = resolveUserComponent(name);
@@ -136,13 +138,13 @@ function getCompsCss() {
 	var list = [];
 	forEach(comps, function(comp) {
 		forEachProperty(comp.mapCss, function(item, k) {
-			if (!item) {
-				console.error(
-					'  <!> Empty mapCss val in '+JSON.stringify(comp.name)+
-					' key '+JSON.stringify(k)+
-					' origin '+JSON.stringify(jsGlobal.originRoute)
-				);
-			}
+			// if (!item) {
+			// 	console.error(
+			// 		'  <!> Empty mapCss val in '+JSON.stringify(comp.name)+
+			// 		' key '+JSON.stringify(k)+
+			// 		' origin '+JSON.stringify(jsGlobal.originRoute)
+			// 	);
+			// }
 			item.comp = comp.name;
 			list.push(item);
 		});

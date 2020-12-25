@@ -1,7 +1,7 @@
-import isomorphicScriptQueue from '../../isomorphic/loaders/script-queue';
-import loadScript from './script';
+import isomorphicScriptQueue from '../../isomorphic/loaders/script-queue.mjs';
+import loadScript from './script.mjs';
 
-export default async function loadScriptQueue(opt) {
+export default function loadScriptQueue(opt) {
 	return isomorphicScriptQueue({
 		loadScript,
 		...opt
