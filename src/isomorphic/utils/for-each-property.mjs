@@ -5,6 +5,7 @@ export default function forEachProperty(obj, cb) {
 	var ctx = {
 		_break: _break
 	};
+	var hop = Object.prototype.hasOwnProperty;
 	var ret;
 	for ( var k in obj ) {
 		if ( !hop.call(obj, k) ) continue;

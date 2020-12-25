@@ -2,6 +2,7 @@
 	"name": "@arijs/frontend",
 	"version": "0.1.6",
 	"description": "Front-end utilities and patterns, components for use with VueJS",
+	"type": "module",
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com/arijs/front-end.git"

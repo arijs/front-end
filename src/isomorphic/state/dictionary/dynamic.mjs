@@ -89,10 +89,11 @@ function listenerRemove(key, listener) {
 	}
 }
 function nextTick(listener) {
+	var self = this;
 	var nextTickListeners = this._nextTickListeners;
 	if (!nextTickListeners.length) setTimeout(function() {
+		self._nextTickListeners = [];
 		callListeners(nextTickListeners);
-		nextTickListeners = [];
 	}, 0);
 	nextTickListeners.push(listener);
 }

@@ -1,5 +1,5 @@
 
-export default function loadScript(url, cb, timeout, cbLog) {
+export default function loadScript({url, cb, timeout, cbLog}) {
 	var script = document.createElement('script');
 	var head = document.getElementsByTagName('head')[0];
 	var done = false;

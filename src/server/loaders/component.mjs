@@ -1,0 +1,14 @@
+import isomorphicComponent from '../../isomorphic/loaders/component.mjs';
+import loadAjax from './ajax.mjs';
+import loadScript from './script.mjs';
+import loadStylesheet from './stylesheet.mjs';
+
+export default async function loadComponent(opt) {
+	opt.loaders = {
+		html: loadAjax,
+		js: loadScript,
+		css: loadStylesheet,
+		...(opt.loaders || null),
+	};
+	return isomorphicComponent(opt);
+}
