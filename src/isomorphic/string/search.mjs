@@ -31,7 +31,7 @@ export function getDistanceObject(aViews, bViews) {
 	};
 }
 
-export function compareDistanceObjects({dist: a}, {dist: b}) {
+export function compareDistanceObjects(a, b) {
 	return ( a.noacc !== b.noacc ? ( a.noacc < b.noacc ? -1 : +1 ) :
 		( a.lower !== b.lower ? ( a.lower < b.lower ? -1 : +1 ) :
 		( a.trim !== b.trim ? ( a.trim < b.trim ? -1 : +1 ) :
@@ -82,7 +82,7 @@ export function insertClosest(closest, searchViews, str, data, maxDistance, maxC
 	var {distSrc, dist} = getDistanceObject(searchViews, getViews(str));
 	if (testMaxDistanceObject(dist, maxDistance)) {
 		for (var i = 0, ii = closest.length; i < ii; i++) {
-			var itemComp = compareDistanceObjects(dist, closest[i]);
+			var itemComp = compareDistanceObjects(dist, closest[i].dist);
 			if (itemComp < 0) break;
 		}
 		return mergeClosest(closest, {distSrc, dist, str, data}, i, maxCount, ii);
