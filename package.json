@@ -1,8 +1,14 @@
 {
 	"name": "@arijs/frontend",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Front-end utilities and patterns, components for use with VueJS",
 	"type": "module",
+	"exports": {
+		"./client/*": "./src/client/*.mjs",
+		"./server/*": "./src/server/*.mjs",
+		"./isomorphic/*": "./src/isomorphic/*.mjs",
+		"./package.json": "./package.json"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com/arijs/front-end.git"
