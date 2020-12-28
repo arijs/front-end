@@ -12,15 +12,15 @@
 // var {numberFormat} = require('@arijs/frontend/isomorphic/utils/number-string');
 
 // more elegant but less efficient
-var {
+const {
 	printf: {printfParse, printfFill},
-	state: {DictionaryDynamic: Dynamic},
+	state: {DictionaryDynamic},
 	utils: {
 		numberString: {numberFormat},
 		queryString: {queryStringify},
 	},
-// } = require('../../../lib/isomorphic/index');
-} = require('@arijs/frontend/isomorphic/index');
+// } = require('../../../lib/server/index');
+} = require('@arijs/frontend/server/index');
 
 function printf(str, vars, mods) {
 	return printfFill( printfParse(str), vars, mods );
@@ -35,7 +35,7 @@ function compare(result, expected, name) {
 	}
 }
 
-const store = new Dynamic({
+const store = new DictionaryDynamic({
 	"( bar ) (key)": "value start - ( bar ) (key) - value end",
 	"labelMain": Math.PI * 1e6,
 	"labelSub": {a:1,b:2},
@@ -43,7 +43,7 @@ const store = new Dynamic({
 	"if-0-timer": true,
 }, 'AriJS TestPrefix Store');
 
-const storeMods = new Dynamic({
+const storeMods = new DictionaryDynamic({
 	"(adv) ( foo )": function(val, params) {
 		return JSON.stringify({val, params});
 	},

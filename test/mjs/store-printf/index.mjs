@@ -16,11 +16,11 @@ import {
 	printf as printfModule,
 	state as stateModule,
 	utils as utilsModule,
-//} from '../../../lib/isomorphic/index';
-} from '@arijs/frontend/isomorphic/index';
+//} from '../../../lib/server/index';
+} from '@arijs/frontend/server/index';
 
 const {printfParse, printfFill} = printfModule;
-const {DictionaryDynamic: Dynamic} = stateModule;
+const {DictionaryDynamic} = stateModule;
 const {
 	numberString: {numberFormat},
 	queryString: {queryStringify},
@@ -39,7 +39,7 @@ function compare(result, expected, name) {
 	}
 }
 
-const store = new Dynamic({
+const store = new DictionaryDynamic({
 	"( bar ) (key)": "value start - ( bar ) (key) - value end",
 	"labelMain": Math.PI * 1e6,
 	"labelSub": {a:1,b:2},
@@ -47,7 +47,7 @@ const store = new Dynamic({
 	"if-0-timer": true,
 }, 'AriJS TestPrefix Store');
 
-const storeMods = new Dynamic({
+const storeMods = new DictionaryDynamic({
 	"(adv) ( foo )": function(val, params) {
 		return JSON.stringify({val, params});
 	},
