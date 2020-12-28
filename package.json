@@ -2,12 +2,28 @@
 	"name": "@arijs/frontend",
 	"version": "0.2.1",
 	"description": "Front-end utilities and patterns, components for use with VueJS",
-	"type": "module",
 	"exports": {
-		"./client/*": "./src/client/*.mjs",
-		"./server/*": "./src/server/*.mjs",
-		"./isomorphic/*": "./src/isomorphic/*.mjs",
+		".": {
+			"import": "./src/index.mjs",
+			"require": "./lib/index.js"
+		},
+		"./client/*": {
+			"import": "./src/client/*.mjs",
+			"require": "./lib/client/*.js"
+		},
+		"./server/*": {
+			"import": "./src/server/*.mjs",
+			"require": "./lib/server/*.js"
+		},
+		"./isomorphic/*": {
+			"import": "./src/isomorphic/*.mjs",
+			"require": "./lib/isomorphic/*.js"
+		},
 		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "./node_modules/.bin/babel src --out-dir lib --verbose",
+		"test": "node test/mjs/store-printf/index.mjs && node test/cjs/store-printf/index.cjs"
 	},
 	"repository": {
 		"type": "git",
@@ -23,5 +39,14 @@
 		"vuejs"
 	],
 	"author": "AriJS",
-	"license": "MIT"
+	"license": "MIT",
+	"devDependencies": {
+		"@babel/cli": "^7.12.10",
+		"@babel/core": "^7.12.10",
+		"@babel/preset-env": "^7.12.11",
+		"babel-plugin-module-resolver": "^4.1.0"
+	},
+	"dependencies": {
+		"@babel/polyfill": "^7.12.1"
+	}
 }

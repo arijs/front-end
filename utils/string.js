@@ -33,7 +33,7 @@ function levenshtein(a, b) {
 	return r.pop().pop();
 }
 
-string.levenshteinLength = levenshteinLength;
+// string.levenshteinLength = levenshteinLength;
 function levenshteinLength(a, b) {
 	return {
 		distance: levenshtein(a, b),

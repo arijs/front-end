@@ -1,4 +1,4 @@
-import each from '../../utils/for-each';
+import each from '../utils/for-each.mjs';
 
 function errorNotFound(key, name, list) {
 	// @TODO print dict names on error

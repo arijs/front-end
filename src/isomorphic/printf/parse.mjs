@@ -1,4 +1,4 @@
-import {queryParse} from '../utils/query-string';
+import {queryParse} from '../utils/query-string.mjs';
 
 var re = /\{\s*(?:([^{}]+?)(?:\s*\{([^{}]*)\})?\s*:)?\s*([^{}]+?)\s*\}/i;
 

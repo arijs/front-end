@@ -1,4 +1,4 @@
-import { intArrayToString, stringToUint8Array } from './string-encoding';
+import { intArrayToString, stringToUint8Array } from './string-encoding.mjs';
 
 var reNonHex = /[^0-9a-f]/gi;
 

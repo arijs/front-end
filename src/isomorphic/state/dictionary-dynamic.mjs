@@ -1,4 +1,4 @@
-import {callListeners} from '../../utils/listeners';
+import {callListeners} from '../utils/listeners.mjs';
 
 var hop = Object.prototype.hasOwnProperty;
 

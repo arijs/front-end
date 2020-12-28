@@ -1,4 +1,4 @@
-import { arrayFrom } from '../utils/collection';
+import { arrayFrom } from '../utils/collection.mjs';
 
 export function printfFill(list, vars, mods, cbError) {
 	list = arrayFrom(list);

@@ -1,5 +1,5 @@
 
-export function bytesSize(b) {
+export default function bytesSize(b) {
 	var x = 1024;
 	var max = [
 		[0, 0, 'B'],

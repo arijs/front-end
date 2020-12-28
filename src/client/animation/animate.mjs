@@ -1,4 +1,4 @@
-import { linear, modIn, interMod } from './easing';
+import { linear, modIn, interMod } from './easing.mjs';
 
 export function polyfillAnimationFrame (callback) {
 	window.setTimeout(callback, 40); // 1000 / 25

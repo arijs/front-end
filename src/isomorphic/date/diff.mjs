@@ -3,7 +3,7 @@ function singularPlural(n, s) {
 	return s instanceof Array ? s[n == 1 ? 0 : 1] : s;
 }
 
-export function diffDates(d1, d2, labels, secondsHide) {
+export default function diffDates(d1, d2, labels, secondsHide) {
 	var p = true;
 	var t1 = d1.getTime();
 	var t2 = d2.getTime();

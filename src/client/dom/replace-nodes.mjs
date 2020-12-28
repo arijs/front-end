@@ -1,5 +1,5 @@
-import each from '../utils/for-each';
-import {arrayConcat} from '../utils/collection';
+import each from '../../isomorphic/utils/for-each.mjs';
+import {arrayConcat} from '../../isomorphic/utils/collection.mjs';
 
 export default function replaceNodes(remove, insert, parent) {
 	remove = arrayConcat(remove);

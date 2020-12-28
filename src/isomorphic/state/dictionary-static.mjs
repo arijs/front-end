@@ -1,5 +1,5 @@
 
-export function dictionary(dict) {
+export function dictionaryStatic(dict) {
 	var hop = Object.prototype.hasOwnProperty;
 	return {
 		has: function(key) { return dict ? hop.call(dict, key) : false },
@@ -7,4 +7,4 @@ export function dictionary(dict) {
 	};
 }
 
-export default dictionary;
+export default dictionaryStatic;

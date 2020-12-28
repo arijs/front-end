@@ -7,8 +7,8 @@ export function queryParse(param) {
 		var pi = param[i];
 		if (!pi) continue;
 		var eqpos = pi.indexOf('=');
-		var name = window.decodeURIComponent(eqpos==-1?pi:pi.substr(0,eqpos));
-		var value = window.decodeURIComponent(eqpos==-1?true:pi.substr(eqpos+1));
+		var name = decodeURIComponent(eqpos==-1?pi:pi.substr(0,eqpos));
+		var value = decodeURIComponent(eqpos==-1?true:pi.substr(eqpos+1));
 		if (hop.call(obj, name)) console.error('Chave duplicada na query string', {
 			name: name,
 			value1: obj[name],
@@ -27,8 +27,8 @@ export function queryStringify(param) {
 	for ( var key in param ) {
 		if ( hop.call(param, key) && null != param[key] ) {
 			var pair = [
-				window.encodeURIComponent(key),
-				window.encodeURIComponent(String(param[key]))
+				encodeURIComponent(key),
+				encodeURIComponent(String(param[key]))
 			];
 			arr.push(pair.join('='));
 		}
