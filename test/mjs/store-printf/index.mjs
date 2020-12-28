@@ -19,16 +19,13 @@ import {
 //} from '../../../lib/server/index';
 } from '@arijs/frontend/server/index';
 
-const {printfParse, printfFill} = printfModule;
+const {printfDict} = printfModule;
 const {DictionaryDynamic} = stateModule;
 const {
 	numberString: {numberFormat},
 	queryString: {queryStringify},
 } = utilsModule;
 
-function printf(str, vars, mods) {
-	return printfFill( printfParse(str), vars, mods );
-}
 function compare(result, expected, name) {
 	if (result === expected) {
 		console.log(`Test ${name} - ok!`);
@@ -66,9 +63,9 @@ var s2 = "{ nr {dlen=3&dsep=,&gsep=.&glen=3} : labelMain }";
 var s3 = "{ fn : labelSub }";
 
 var result = {
-	s1: printf(s1, store, storeMods),
-	s2: printf(s2, store, storeMods),
-	s3: printf(s3, store, storeMods),
+	s1: printfDict(s1, store, storeMods),
+	s2: printfDict(s2, store, storeMods),
+	s3: printfDict(s3, store, storeMods),
 };
 
 var expected = {

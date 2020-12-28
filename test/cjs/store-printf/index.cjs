@@ -13,7 +13,7 @@
 
 // more elegant but less efficient
 const {
-	printf: {printfParse, printfFill},
+	printf: {printfDict},
 	state: {DictionaryDynamic},
 	utils: {
 		numberString: {numberFormat},
@@ -22,9 +22,6 @@ const {
 // } = require('../../../lib/server/index');
 } = require('@arijs/frontend/server/index');
 
-function printf(str, vars, mods) {
-	return printfFill( printfParse(str), vars, mods );
-}
 function compare(result, expected, name) {
 	if (result === expected) {
 		console.log(`Test ${name} - ok!`);
@@ -62,9 +59,9 @@ var s2 = "{ nr {dlen=3&dsep=,&gsep=.&glen=3} : labelMain }";
 var s3 = "{ fn : labelSub }";
 
 var result = {
-	s1: printf(s1, store, storeMods),
-	s2: printf(s2, store, storeMods),
-	s3: printf(s3, store, storeMods),
+	s1: printfDict(s1, store, storeMods),
+	s2: printfDict(s2, store, storeMods),
+	s3: printfDict(s3, store, storeMods),
 };
 
 var expected = {
