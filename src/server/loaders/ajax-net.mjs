@@ -1,4 +1,9 @@
+import http from "http";
+import https from "https";
 import { arrayFrom } from '../../isomorphic/utils/collection.mjs';
+
+export const httpProtocol = http;
+export const httpsProtocol = https;
 
 export function AjaxError(message, resp, error, type) {
 	this.message = message;
@@ -59,7 +64,7 @@ export const formatError = {
 };
 
 export function respGetType(resp) {
-	return resp.req.getResponseHeader("Content-Type");
+	return resp.res.headers["content-type"];
 }
 
 export function respErrorType(resp, expected) {
@@ -86,11 +91,6 @@ export function createTypeParser(opt) {
 				opt.parse(resp);
 			} catch (e) {
 				var {message, error} = resp.formatError.parse(type.name, e, resp);
-				// var tl = loadAjaxMessages['error-parse'];
-				// var tlVars = {
-				// 	error: e.message
-				// };
-				// {message: printf(tl.message, tlVars)}
 				resp.errorParse = new AjaxError(message, resp, error, AjaxError.ERROR_PARSE);
 			}
 		}
@@ -132,9 +132,6 @@ export function parseValidate(resp) {
 	if (validate instanceof Function) {
 		var err = validate(resp);
 		if (err) {
-			// var tl = loadAjaxMessages['error-validate'];
-			// if (!err.title) err.title = tl.title;
-			// if (!err.message) err.message = tl.message;
 			var {message, error} = resp.formatError.app(err, resp);
 			resp.errorApp = new AjaxError(message, resp, error, AjaxError.ERROR_APP);
 		}
@@ -159,10 +156,13 @@ export function parseResponse(resp) {
 	return resp.opt.cb(resp);
 }
 
-export default function loadAjax(opt) {
-	var req = new XMLHttpRequest;
-	var head = opt.headers;
-	var hc = head && head.length || 0;
+let defaultEncoding = 'utf8';
+
+export function setDefaultEncoding(enc) {
+	defaultEncoding = enc;
+}
+
+export function loadAjax(opt) {
 	var parse = opt.parse || parseResponse;
 	var timeout = opt.timeout;
 	var idTimeout;
@@ -183,10 +183,14 @@ export default function loadAjax(opt) {
 		errorTimeout: null,
 		error: null,
 		data: null,
-		req: req,
+		headers: null,
+		req: null,
+		res: null,
 		opt: opt,
-		formatError: opt.formatError || formatError
+		formatError: opt.formatError || formatError,
 	};
+	// @TODO
+	const {apiProtocol = https} = opt;
 	if (timeout != null && !isNaN(timeout) && timeout > 0) {
 		idTimeout = setTimeout(function () {
 			if (!resp.loading) return;
@@ -195,39 +199,56 @@ export default function loadAjax(opt) {
 			parse(resp);
 		}, timeout);
 	}
-	req.addEventListener('load', function() {
-		// var tl = loadAjaxMessages['error-server'];
-		resp.loading = false;
-		resp.data = req.responseText;
-		if (req.status < 200 || req.status >= 300) {
-			// var tlVars = {
-			// 	code: req.status,
-			// 	statusText: req.statusText
-			// };
-			// resp.errorServer = new AjaxError(
-			// 	printf(tl.title, tlVars),
-			// 	resp,
-			// 	{ message: printf(tl.message, tlVars) }
-			// );
-			var {message, error} = resp.formatError.server(req.status, req.statusText, resp);
+	resp.req = apiProtocol.request(opt.req, res => {
+		let data;
+		resp.res = res;
+		resp.headers = res.headers;
+		if (res.statusCode < 200 || res.statusCode >= 300) {
+			var {message, error} = resp.formatError.server(res.statusCode, res.statusMessage, resp);
 			resp.errorServer = new AjaxError(message, resp, error, AjaxError.ERROR_SERVER);
 		}
-		stopTimeout();
-		parse(resp);
+		if (opt.asBuffer) {
+			data = Buffer.alloc(0);
+		} else {
+			res.setEncoding(opt.resEncoding || defaultEncoding);
+			data = '';
+		}
+		res.on('data', opt.onData || (chunk => {
+			if (data instanceof Buffer) {
+				data = Buffer.concat(data, chunk);
+			} else {
+				data = data.concat(chunk);
+			}
+		}));
+		res.on('end', opt.onEnd || (() => {
+			resp.loading = false;
+			resp.data = data;
+			parse(resp);
+		}));
 	});
-	req.addEventListener('error', function(ev) {
-		// var tl = loadAjaxMessages['error-net'];
+	resp.req.on('error', (e) => {
 		resp.loading = false;
 		var {message, error} = resp.formatError.net(ev, resp);
 		resp.errorNet = new AjaxError(message, resp, error, AjaxError.ERROR_NET);
 		stopTimeout();
 		parse(resp);
 	});
-	req.open(opt.method || 'GET', opt.url);
-	for (var i = 0; i < hc; i++) {
-		var h = head[i];
-		h && h.name && req.setRequestHeader(h.name, h.value);
+	if (opt.onOpen) {
+		opt.onOpen(resp);
+	} else{
+		if (opt.body) {
+			resp.req.write(opt.body);
+		}
+		resp.req.end();
 	}
-	req.send(opt.body);
 	return resp;
 };
+
+export default loadAjax;
+
+export function loadAjaxPromise(opt) {
+	return new Promise((resolve, reject) => {
+		opt.cb = resp => resp.error ? reject(resp) : resolve(resp);
+		return loadAjax(opt);
+	});
+}
