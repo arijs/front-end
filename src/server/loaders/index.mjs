@@ -1,4 +1,5 @@
-export { default as ajax } from './ajax.mjs';
+export { default as ajaxFs } from './ajax-fs.mjs';
+export { default as ajaxNet } from './ajax-net.mjs';
 export { default as script } from './script.mjs';
 export { default as stylesheet } from './stylesheet.mjs';
 export { default as scriptQueue } from './script-queue.mjs';

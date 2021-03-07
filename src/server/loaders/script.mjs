@@ -1,4 +1,4 @@
-import loadAjax from './ajax.mjs';
+import loadAjax from './ajax-fs.mjs';
 import evalContext from '../../isomorphic/utils/eval-context.mjs';
 
 export default async function loadScript(opt) {
