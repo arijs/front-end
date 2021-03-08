@@ -41,6 +41,15 @@ async function callObjLoader(opt, obj, fname, order, itemLoad, arg) {
 	itemLoad();
 }
 
+let defaultSetCompHtml = (js, html) => {
+	js.template = html;
+	return js;
+};
+
+export function setDefaultSetCompHtml(sch) {
+	defaultSetCompHtml = sch;
+}
+
 async function compLoader(load) {
 	var js = load.js.data;
 	var html = load.html.data;

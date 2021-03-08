@@ -1,4 +1,5 @@
 import { arrayFrom } from '../../isomorphic/utils/collection.mjs';
+import extend from '../../isomorphic/utils/extend.mjs';
 
 export function AjaxError(message, resp, error, type) {
 	this.message = message;
@@ -159,7 +160,7 @@ export function parseResponse(resp) {
 	return resp.opt.cb(resp);
 }
 
-export default function loadAjax(opt) {
+export function loadAjax(opt) {
 	var req = new XMLHttpRequest;
 	var head = opt.headers;
 	var hc = head && head.length || 0;
@@ -224,6 +225,7 @@ export default function loadAjax(opt) {
 		parse(resp);
 	});
 	req.open(opt.method || 'GET', opt.url);
+	if (opt.xhrFields) extend(req, opt.xhrFields);
 	for (var i = 0; i < hc; i++) {
 		var h = head[i];
 		h && h.name && req.setRequestHeader(h.name, h.value);
@@ -231,3 +233,12 @@ export default function loadAjax(opt) {
 	req.send(opt.body);
 	return resp;
 };
+
+export function loadAjaxPromise(opt) {
+	return new Promise((resolve, reject) => {
+		opt.cb = resp => resp.error ? reject(resp) : resolve(resp);
+		return loadAjax(opt);
+	});
+}
+
+export default loadAjax;

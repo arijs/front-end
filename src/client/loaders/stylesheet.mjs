@@ -1,5 +1,5 @@
 
-export default function loadStylesheet(url, cb, timeout, cbLog) {
+export function loadStylesheet({url, cb, timeout, cbLog}) {
 	var link = document.createElement('link');
 	var head = document.getElementsByTagName('head')[0];
 	var done = false;
@@ -30,3 +30,12 @@ export default function loadStylesheet(url, cb, timeout, cbLog) {
 	link.href = url;
 	head.appendChild(link);
 }
+
+export function loadStylesheetPromise({url, timeout, cbLog}) {
+	return new Promise((resolve, reject) => {
+		const cb = err => err ? reject(err) : resolve();
+		return loadStylesheet({url, cb, timeout, cbLog});
+	});
+}
+
+export default loadStylesheet;

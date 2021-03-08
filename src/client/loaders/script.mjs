@@ -1,5 +1,5 @@
 
-export default function loadScript({url, cb, timeout, cbLog}) {
+export function loadScript({url, cb, timeout, cbLog}) {
 	var script = document.createElement('script');
 	var head = document.getElementsByTagName('head')[0];
 	var done = false;
@@ -29,3 +29,12 @@ export default function loadScript({url, cb, timeout, cbLog}) {
 	script.src = url;
 	head.appendChild(script);
 }
+
+export function loadScriptPromise({url, timeout, cbLog}) {
+	return new Promise((resolve, reject) => {
+		const cb = err => err ? reject(err) : resolve();
+		return loadScript({url, cb, timeout, cbLog});
+	});
+}
+
+export default loadScript;

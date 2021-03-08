@@ -77,10 +77,10 @@ function prefixLoader(match) {
 	// console.log(' +  call loadComp prefix for', match.prefix, match.path);
 	var promise = match.loadComponent(match).then(function(load) {
 		// console.log(' +  resolve loadComp prefix', match.prefix, match.path);
-		var {onLoad} = match;
+		var {onLoadComponent} = match;
 		var loadMod;
-		if (onLoad instanceof Function) {
-			loadMod = onLoad(match, load);
+		if (onLoadComponent instanceof Function) {
+			loadMod = onLoadComponent(match, load);
 		}
 		return mapCache[path] = load = loadMod || load;//def.
 	}).catch(function(load) {
