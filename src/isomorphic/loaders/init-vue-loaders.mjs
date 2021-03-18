@@ -61,9 +61,13 @@ return {
 
 async function setCompHtml(js, html) {
 	if (compile instanceof Function) {
-		html = compile(html).code;
+		html = compile(html, {prefixIdentifiers: true}).code;
 		html = Function.call(null, 'Vue', html);
 		js.render = html(Vue);
+		js.render._rc = true;
+			// Reason for this flag _rc :
+			// https://github.com/vuejs/vue-next/pull/2910#issuecomment-752980088
+			// https://jsfiddle.net/Linusborg/3tkae0jd/
 	} else {
 		js.template = html;
 	}

@@ -82,7 +82,7 @@ function prefixLoader(match) {
 		if (onLoadComponent instanceof Function) {
 			loadMod = onLoadComponent(match, load);
 		}
-		return mapCache[path] = load = loadMod || load;//def.
+		return mapCache[path] = loadMod || load;
 	}).catch(function(load) {
 		// console.log(' +  reject loadComp prefix', match.prefix, match.path, load);
 		var {onLoadError} = match;

@@ -64,7 +64,6 @@ async function compLoader(load) {
 	} else {
 		js.name = load.opt.name;
 		js = await setCompHtml(js, html, load);
-		// console.log(' +  comp options', js);
 		return js;
 	}
 }

@@ -42,7 +42,7 @@ dirFiles({
 			const pps = pp.join('/');
 			const rps = rp.join('/');
 			this.result[pps] = this.result[rps] = pp.join('.');
-			console.log('~ '+pps);
+			// console.log('~ '+pps);
 		}
 	],
 	callback: function(err, result) {
@@ -51,7 +51,8 @@ dirFiles({
 	}
 });
 
-console.log('++ ', JSON.stringify(Object.entries(dfResult).slice(0, 5), null, 2));
+// for debugging
+// console.log('++ ', JSON.stringify(Object.entries(dfResult).slice(0, 5), null, 2));
 
 const reExt = /\.mjs$/i;
 const reModulePath = /^(?:\.\/)?(client|isomorphic|server)\//i;
