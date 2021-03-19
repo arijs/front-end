@@ -52,6 +52,7 @@ onResolveNotFound =
 
 return {
 	resolveUserCompLoader,
+	resolveUserLoader,
 	resolveUserComponent,
 	resolveAsyncComponent,
 	getCompsCss,
@@ -101,16 +102,6 @@ function resolveUserComponent(name) {
 	} else if (loader) {
 		// console.log('/** user component found **/', match.name, name);
 		onResolveFound(match, name);
-		// console.log(' +  attempt to load', name);
-		// var t = Date.now();
-		// Promise.race([
-		// 	loader(),
-		// 	rejectTimeout(5000)
-		// ]).then(function(comp) {
-		// 	console.log(' +  comp loaded in '+(Date.now()-t), name, inspectObj(comp, 1));
-		// }).catch(function() {
-		// 	console.log(' +  comp load failed in '+(Date.now()-t), name);
-		// });
 		return loader;
 	} else {
 		// console.log('/** user component NOT found **/', name);
@@ -118,21 +109,20 @@ function resolveUserComponent(name) {
 	}
 }
 
-// function rejectTimeout(time) {
-// 	return new Promise(function(resolve, reject) {
-// 		setTimeout(reject, time || 0);
-// 	});
-// }
+function resolveUserLoader(name) {
+	var loader = resolveUserComponent(name);
+	return loader && function() {
+		return loader().then(function(load) {
+			return load.comp.data;
+		});
+	};
+};
 
 function resolveAsyncComponent(name) {
-	var loader = resolveUserComponent(name);
+	var loader = resolveUserLoader(name);
 	return loader instanceof Function
 		? Vue.defineAsyncComponent({
-			loader: function () {
-				return loader().then(function(load) {
-					return load.comp.data;
-				});
-			},
+			loader: loader,
 			name: 'loader--'+name,
 		})
 		: undefined;
