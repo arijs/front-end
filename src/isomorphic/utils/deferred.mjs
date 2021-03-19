@@ -43,22 +43,42 @@ export function deferred(ref) {
 	}
 }
 
-export function deferredPromise(ref) {
-	var success = deferred(ref);
-	var failure = deferred(ref);
+export function subProm(ref, sub, handler, self, args) {
+	var def = deferredPromise(ref, null == sub ? 0 : 1 + sub);
+	try {
+		var res = handler.apply(self, args);
+		if (res &&
+			res.then instanceof Function &&
+			res.catch instanceof Function
+		) {
+			res.then(def.resolve);
+			res.catch(def.reject);
+		} else {
+			def.resolve(res);
+		}
+	} catch (err) {
+		def.reject(err);
+	}
+	return def;
+}
+
+export function deferredPromise(ref, sub) {
+	var ssub = null == sub ? '' : '/'+sub;
+	var success = deferred(ref+ssub+'/s');
+	var failure = deferred(ref+ssub+'/f');
 	var promise = {
 		then: function() {
-			success.then.apply(this, arguments);
-			return promise;
+			return subProm(ref, sub, success.then, this, arguments).promise;
 		},
 		catch: function() {
-			failure.then.apply(this, arguments);
-			return promise;
+			return subProm(ref, sub, failure.then, this, arguments).promise;
 		},
 		unthen: success.nevermind,
 		uncatch: failure.nevermind
 	}
 	return {
+		ref: ref,
+		sub: sub,
 		resolve: success.done,
 		reject: failure.done,
 		promise: promise,
