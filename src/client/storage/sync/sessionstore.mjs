@@ -1,8 +1,8 @@
-import browserstore from './browserstore';
-import addStoreKey from './add-store-key';
+import browserstore from './browserstore.mjs';
+import addStoreKey from './add-store-key.mjs';
 
 export default addStoreKey({
-	s: window.sessionStorage,
+	s: ('object' === typeof window) && window.sessionStorage,
 	type: 'sessionStorage',
 	set: browserstore.set,
 	get: browserstore.get,

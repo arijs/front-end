@@ -15,10 +15,10 @@ function prepareObjLoad(src, name, opt) {
 		...obj,
 		loader: obj && obj.loader instanceof Function
 			? obj.loader
-			: opt.loaders?.[name],
+			: opt.loaders && opt.loaders[name],
 		onLoad: obj && obj.onLoad instanceof Function
 			? obj.onLoad
-			: opt.onLoad?.[name] || echo,
+			: opt.onLoad && opt.onLoad[name] || echo,
 		done: false,
 		error: null,
 		data: null,
@@ -86,7 +86,7 @@ export default function loadComponent(opt) {
 		initAsset(opt.js  , 'js'  );
 		initAsset(opt.css , 'css' );
 		function initComp(comp) {
-			load.comp = comp = prepareObjLoad(comp, comp?.name || 'comp', opt);
+			load.comp = comp = prepareObjLoad(comp, comp && comp.name || 'comp', opt);
 			comp.loader = comp.loader instanceof Function
 				? comp.loader
 				: compLoader;

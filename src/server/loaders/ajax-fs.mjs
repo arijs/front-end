@@ -1,4 +1,6 @@
-import { readFile } from 'fs/promises';
+import { promises } from 'fs';
+
+const { readFile } = promises;
 
 export default async function loadAjax(opt) {
 	if ('string' === typeof opt) opt = { url: opt };

@@ -1,6 +1,6 @@
-import localstore from './localstore';
-import sessionstore from './sessionstore';
-import cookiestore from './cookiestore';
+import localstore from './localstore.mjs';
+import sessionstore from './sessionstore.mjs';
+import cookiestore from './cookiestore.mjs';
 
 let store;
 

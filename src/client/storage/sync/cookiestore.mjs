@@ -1,7 +1,7 @@
-import addStoreKey from './add-store-key';
+import addStoreKey from './add-store-key.mjs';
 
 export default addStoreKey({
-	s: document.cookie,
+	s: ('object' === typeof document) && document.cookie,
 	type: 'cookie',
 	set: function (name, value, expires, path, secure) {
 		if (value !== undefined && typeof(value) === "object") var valueToUse = JSON.stringify(value);

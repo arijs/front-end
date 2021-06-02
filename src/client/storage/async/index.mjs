@@ -1,7 +1,7 @@
-import localstore from './localstore';
-import sessionstore from './sessionstore';
-import cookiestore from './cookiestore';
-import capacitorstore from './capacitor';
+import localstore from './localstore.mjs';
+import sessionstore from './sessionstore.mjs';
+import cookiestore from './cookiestore.mjs';
+import capacitorstore from './capacitor.mjs';
 
 let store;
 

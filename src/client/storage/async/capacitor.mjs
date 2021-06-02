@@ -1,6 +1,6 @@
-import allCallback from '../../utils/all-callback';
-import addStoreKeyAsync from './add-store-key-async';
-import addMultiKeyAsync from './add-store-key-async';
+import allCallback from '../../../isomorphic/utils/all-callback.mjs';
+import addStoreKeyAsync from './add-store-key-async.mjs';
+import addMultiKeyAsync from './add-store-key-async.mjs';
 
 let capacitorstore = {
 	s: (function() {

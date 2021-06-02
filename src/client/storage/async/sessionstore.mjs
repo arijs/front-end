@@ -1,10 +1,11 @@
-import sessionstore from '../sync/sessionstore';
-import syncAdapter from './sync-adapter';
-import addStoreKeyAsync from './add-store-key-async';
-import addMultiKeyAsync from './add-store-key-async';
+import sessionstore from '../sync/sessionstore.mjs';
+import syncAdapter from './sync-adapter.mjs';
+import addStoreKeyAsync from './add-store-key-async.mjs';
+import addMultiKeyAsync from './add-store-key-async.mjs';
 
-sessionstore = syncAdapter(sessionstore);
-sessionstore = addStoreKeyAsync(sessionstore);
-sessionstore = addMultiKeyAsync(sessionstore);
+let async_ss = sessionstore;
+async_ss = syncAdapter(async_ss);
+async_ss = addStoreKeyAsync(async_ss);
+async_ss = addMultiKeyAsync(async_ss);
 
-export default sessionstore;
+export default async_ss;
