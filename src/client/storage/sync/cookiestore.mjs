@@ -1,6 +1,8 @@
 import addStoreKey from './add-store-key.mjs';
+import addMultiKey from './add-multi-key.mjs';
 
-export default addStoreKey({
+// export default addStoreKey(
+let sync_cs = {
 	s: ('object' === typeof document) && document.cookie,
 	type: 'cookie',
 	set: function (name, value, expires, path, secure) {
@@ -49,4 +51,9 @@ export default addStoreKey({
 		}
 		return this.getAll();
 	}
-});
+};
+
+sync_cs = addStoreKey(sync_cs);
+sync_cs = addMultiKey(sync_cs);
+
+export default sync_cs;
