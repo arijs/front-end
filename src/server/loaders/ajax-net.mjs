@@ -226,7 +226,7 @@ export function loadAjax(opt) {
 			parse(resp);
 		}));
 	});
-	resp.req.on('error', (e) => {
+	resp.req.on('error', (ev) => {
 		resp.loading = false;
 		var {message, error} = resp.formatError.net(ev, resp);
 		resp.errorNet = new AjaxError(message, resp, error, AjaxError.ERROR_NET);
