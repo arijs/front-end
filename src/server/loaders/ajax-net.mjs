@@ -147,12 +147,14 @@ export function parseGetError(resp) {
 		|| resp.errorTimeout;
 }
 
-export function parseResponse(resp) {
-	if (!resp.loading) {
+function parseResponse(resp) {
+	parseGetError(resp);
+
+	if (resp.res) {
 		parseOptTypes(resp);
 	}
+
 	parseValidate(resp);
-	parseGetError(resp);
 	return resp.opt.cb(resp);
 }
 
