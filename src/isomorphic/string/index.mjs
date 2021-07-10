@@ -5,3 +5,4 @@ export { default as normalizeViews } from './normalize-views.mjs';
 export * as searchFns from './search.mjs';
 export { default as search } from './search.mjs';
 export * as encoding from './encoding.mjs';
+export { default as slugify } from './slugify.mjs';
