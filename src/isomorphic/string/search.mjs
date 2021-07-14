@@ -79,13 +79,13 @@ export function testMaxDistanceObject(item, maxDistance) {
 }
 
 export function insertClosest(closest, searchViews, str, data, maxDistance, maxCount) {
-	var {distSrc, dist} = getDistanceObject(searchViews, getViews(str));
-	if (testMaxDistanceObject(dist, maxDistance)) {
+	var item = Object.assign(getDistanceObject(searchViews, getViews(str)), {str, data});
+	if (testMaxDistanceObject(item, maxDistance)) {
 		for (var i = 0, ii = closest.length; i < ii; i++) {
-			var itemComp = compareDistanceObjects(dist, closest[i].dist);
+			var itemComp = compareDistanceObjects(item.dist, closest[i].dist);
 			if (itemComp < 0) break;
 		}
-		return mergeClosest(closest, {distSrc, dist, str, data}, i, maxCount, ii);
+		return mergeClosest(closest, item, i, maxCount, ii);
 	}
 	return false;
 }
@@ -123,14 +123,16 @@ export function search(opt) {
 	var maxCount;
 	var maxDistance;
 	var cutDistance;
-	'object' === typeof opt && init(opt);
-	return {
+	var api = {
 		clear,
 		init,
 		getDistance,
 		insert,
 		getClosest,
+		_state: null,
 	};
+	'object' === typeof opt && init(opt);
+	return api;
 	function clear() {
 		closest = [];
 	}
@@ -139,6 +141,7 @@ export function search(opt) {
 		if (null != mc) maxCount = mc;
 		if (null != md) maxDistance = md;
 		if (null != cd) cutDistance = cd;
+		api._state = { searchTerm, maxCount, maxDistance, cutDistance };
 	}
 	function getDistance(str) {
 		return getDistanceObject(searchTerm, getViews(str));
