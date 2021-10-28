@@ -224,6 +224,12 @@ export function loadAjax(opt) {
 		stopTimeout();
 		parse(resp);
 	});
+	if (opt.onProgress instanceof Function) {
+		req.addEventListener('progress', opt.onProgress);
+	}
+	if (opt.onProgressUpload instanceof Function) {
+		req.upload.addEventListener('progress', opt.onProgressUpload);
+	}
 	req.open(opt.method || 'GET', opt.url);
 	if (opt.xhrFields) extend(req, opt.xhrFields);
 	for (var i = 0; i < hc; i++) {
