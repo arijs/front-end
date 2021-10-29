@@ -19,6 +19,12 @@ export function testaDir(dir, cb) {
 	});
 }
 
+export function testaDirPromise(dir) {
+	return new Promise((resolve, reject) => {
+		testaDir(dir, (error, found) => error ? reject({error, found}) : resolve(found))
+	})
+}
+
 export function openDir(dir, cb) {
 	testaDir(dir, function(err, exists) {
 		if (err) {
@@ -42,8 +48,20 @@ export function openDir(dir, cb) {
 	});
 }
 
+export function openDirPromise(dir) {
+	return new Promise((resolve, reject) => {
+		openDir(dir, (err) => err ? reject(err) : resolve())
+	})
+}
+
 export function openDirSub(base, sub, cb) {
 	return openDir(path.join(base, sub), cb);
+}
+
+export function openDirSubPromise(base, sub) {
+	return new Promise((resolve, reject) => {
+		openDirSub(base, sub, (err) => err ? reject(err) : resolve())
+	})
 }
 
 export function openDirArray(base, arr, cb) {
@@ -62,6 +80,12 @@ export function openDirArray(base, arr, cb) {
 	} else {
 		return cb();
 	}
+}
+
+export function openDirArrayPromise(base, arr) {
+	return new Promise((resolve, reject) => {
+		openDirArray(base, arr, (err) => err ? reject(err) : resolve())
+	})
 }
 
 export function testaFile(file, cb) {
@@ -84,9 +108,21 @@ export function testaFile(file, cb) {
 	});
 }
 
+export function testaFilePromise(file) {
+	return new Promise((resolve, reject) => {
+		testaFile(file, (error, found) => error ? reject({error, found}) : resolve(found))
+	})
+}
+
 openDir.sub = openDirSub;
 openDir.array = openDirArray;
 openDir.test = testaDir;
 openDir.testFile = testaFile;
+
+openDir.promise = openDirPromise;
+openDir.promise.sub = openDirSubPromise;
+openDir.promise.array = openDirArrayPromise;
+openDir.promise.test = testaDirPromise;
+openDir.promise.testFile = testaFilePromise;
 
 export default openDir;

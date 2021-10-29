@@ -15,6 +15,7 @@ export * as listeners from './listeners.mjs';
 export * as numberString from './number-string.mjs';
 export * as pages from './pages.mjs';
 export * as printUnits from './print-units.mjs';
+export * as promise from './promise.mjs';
 export * as propertyChain from './property-chain.mjs';
 export * as queryString from './query-string.mjs';
 export * as surrogates from './surrogates.mjs';
