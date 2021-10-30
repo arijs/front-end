@@ -1,4 +1,67 @@
 import { createReadStream, createWriteStream } from 'fs'
+import { Transform } from 'stream'
+
+const nop = () => {}
+
+export class TransformObject extends Transform {
+	process
+	constructor(opts) {
+		super({
+			...opts,
+			readableObjectMode: true,
+			writableObjectMode: true,
+		})
+		this.process = opts.process
+	}
+
+	_transform(obj, _, callback) {
+		Promise.resolve(this.process(obj, this.push.bind(this))).then(
+			() => callback(),
+			(err) => callback(err),
+		)
+	}
+}
+
+export class StringToLines extends Transform {
+	strBuf
+	numRows
+	rowSeparator
+	// colSeparator
+	onChunkStart
+	onChunkEnd
+	constructor(opts) {
+		super({ ...opts, readableObjectMode: true })
+		this.strBuf = ''
+		this.numRows = 0
+		this.rowSeparator = opts?.rowSeparator ?? '\n'
+		// this.colSeparator = opts.colSeparator ?? '\t'
+		this.onChunkStart = opts?.onChunkStart ?? nop
+		this.onChunkEnd = opts?.onChunkEnd ?? nop
+	}
+
+	_transform(chunk, _, callback) {
+		try {
+			const rsep = this.rowSeparator
+			// const csep = this.colSeparator
+			let c = this.csvBuf + chunk
+			let rowIndex = this.numRows
+			this.onChunkStart(chunk, rowIndex)
+			for(let nlIndex; nlIndex = c.indexOf(rsep), nlIndex != -1;) {
+				const row = c.substr(0, nlIndex)
+				this.push({row, rowIndex})
+				rowIndex++
+				c = c.substr(nlIndex + 1)
+			}
+			this.onChunkEnd(chunk, rowIndex)
+			this.csvBuf = c
+			this.numRows = rowIndex
+		} catch (e) {
+			callback(e)
+			return
+		}
+		callback()
+	}
+}
 
 export function tryOpenReadPromise(path, rsOpt) {
 	return new Promise((resolve, reject) => {

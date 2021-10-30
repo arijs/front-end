@@ -82,6 +82,9 @@ export default {
 				"exactGlobals": true,
 				"importFileExt": ".js"
 			}
+		],
+		[
+			"@babel/plugin-proposal-class-properties"
 		]
 	],
 	moduleIds: true,
