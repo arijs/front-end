@@ -70,7 +70,7 @@ var expected = {
 	s3: "a=1&b=2"
 };
 
-console.log('Test as Common JS');
+console.log('PrintF, State, Utils/Query String, Utils/Number Format - Test as Common JS');
 compare(result.s1, expected.s1, 's1');
 compare(result.s2, expected.s2, 's2');
 compare(result.s3, expected.s3, 's3');

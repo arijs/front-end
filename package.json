@@ -31,7 +31,7 @@
 	],
 	"scripts": {
 		"build": "./node_modules/.bin/babel src --out-dir lib --verbose",
-		"test": "node test/mjs/store-printf/index.mjs && node test/cjs/store-printf/index.cjs"
+		"test": "node test/mjs/index.mjs && node test/cjs/index.cjs"
 	},
 	"repository": {
 		"type": "git",
