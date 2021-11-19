@@ -1,4 +1,8 @@
 
+export function promiseTimeout(time, result) {
+	return new Promise(resolve => setTimeout(resolve, time, result))
+}
+
 // ignores any rejects except if all promises rejects
 export function promiseRaceFirst (promiseList) {
 	return new Promise((resolve, reject) => {
