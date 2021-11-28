@@ -7,6 +7,7 @@ import {
 
 const {
 	checkDigitMod11: {
+		fnFnDebugItem,
 		getDigitsCPF,
 		getDigitsCPFManual,
 		getDigitsCNPJ,
@@ -24,11 +25,13 @@ function compare(result, expected, name) {
 	}
 }
 
+const debugItem = name => undefined; // fnFnDebugItem(name);
+
 var result = {
-	cpf: getDigitsCPF('350446208'),
-	cpfManual: getDigitsCPFManual('350446208'),
-	cnpj: getDigitsCNPJ('031722230001'),
-	cnpjManual: getDigitsCNPJManual('031722230001'),
+	cpf: getDigitsCPF('350446208', debugItem(`getDigitsCPF debugItem`)),
+	cpfManual: getDigitsCPFManual('350446208', debugItem(`getDigitsCPFManual debugItem`)),
+	cnpj: getDigitsCNPJ('031722230001', debugItem(`getDigitsCNPJ debugItem`)),
+	cnpjManual: getDigitsCNPJManual('031722230001', debugItem(`getDigitsCNPJManual debugItem`)),
 };
 
 var expected = {

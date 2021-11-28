@@ -73,12 +73,12 @@ export function listFinalizeSumPreviousDigits(cdList) {
 	return finList;
 }
 
-export function calcDigitList(
+export function calcDigitList({
 	calcMethods = mod11Methods,
-	listCreate = listCreateFactorCount,
-	listFinalize = listFinalizeSumPreviousDigits,
-	listInitState = echo,
-) {
+	create: listCreate = listCreateFactorCount,
+	finalize: listFinalize = listFinalizeSumPreviousDigits,
+	initState: listInitState = echo,
+}) {
 	let cdList;
 	const api = {
 		cdList,
@@ -90,8 +90,7 @@ export function calcDigitList(
 	};
 	return api;
 	function init() {
-		const lis = listInitState instanceof Function ? listInitState : echo;
-		cdList = listCreate.apply(this, arguments).map(lis).map(state => calcDigitSum(state, calcMethods));
+		cdList = listCreate.apply(this, arguments).map(listInitState).map(state => calcDigitSum(state, calcMethods));
 		return api;
 	}
 	function each(h) {
@@ -112,11 +111,11 @@ export function calcDigitList(
 	}
 }
 
-export const fnCalcDigitMod11Lis = lis => calcDigitList(mod11Methods, listCreateFactorCount, listFinalizeSumPreviousDigits, lis);
+export const fnStateAddDebug = d => s => (s.fnDebugItem = d, s);
 
-export const calcDigitCPF = d => fnCalcDigitMod11Lis(s => (s.fnDebugItem = d, s)).init(2, 10);
+export const calcDigitCPF = d => calcDigitList({initState: fnStateAddDebug(d)}).init(2, 10);
 
-export const calcDigitCNPJ = d => fnCalcDigitMod11Lis(s => (s.fnDebugItem = d, s)).init(2, 5);
+export const calcDigitCNPJ = d => calcDigitList({initState: fnStateAddDebug(d)}).init(2, 5);
 
 export function fnFnDebugItem(name) {
 	return ({factor, sum, digitIndex}) => {
@@ -127,46 +126,42 @@ export function fnFnDebugItem(name) {
 	};
 }
 
-export function getDigitsCPFManual(valor) {
-	valor = String(valor).replace(/[^0-9]/g, '');
-	var digitos = valor.substr(0, 9);
-	const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCPFManual debugItem`); // 
-	var dv1 = calcDigitSum({factor: 10, digitIndex: 0, fnDebugItem}).addText(digitos).finalize();
-	var dv2 = calcDigitSum({factor: 11, digitIndex: 1, fnDebugItem}).addText(digitos + dv1).finalize();
+const reNonDigit = /\D/g
+
+export function getDigitsCPFManual(digits, fnDebugItem) {
+	// const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCPFManual debugItem`); // 
+	var dv1 = calcDigitSum({factor: 10, digitIndex: 0, fnDebugItem}).addText(digits).finalize();
+	var dv2 = calcDigitSum({factor: 11, digitIndex: 1, fnDebugItem}).addText(digits + dv1).finalize();
 	return `${dv1}${dv2}`;
 }
 
-export function getDigitsCPF(digits) {
-	digits = String(digits).replace(/[^0-9]/g, '').substr(0, 9);
-	const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCPF debugItem`); // 
+export function getDigitsCPF(digits, fnDebugItem) {
+	// const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCPF debugItem`); // 
 	return calcDigitCPF(fnDebugItem).addText(digits).finalize().join('');
 }
 
-export function checkCPF(valor) {
-	valor = String(valor).replace(/[^0-9]/g, '');
-	var digitos = valor.substr(0, 9);
-	var dv = getDigitsCPFManual(digitos);
-	return (digitos + dv) === valor;
+export function checkCPF(valor, fnDebugItem) {
+	valor = String(valor).replace(reNonDigit, '');
+	var digits = valor.substr(0, 9);
+	var dv = getDigitsCPFManual(digits, fnDebugItem);
+	return (digits + dv) === valor;
 }
 
-export function getDigitsCNPJManual(valor) {
-	valor = String(valor).replace(/[^0-9]/g, '');
-	var digitos = valor.substr(0, 12);
-	const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCNPJManual debugItem`); // 
-	var dv1 = calcDigitSum({factor: 5, digitIndex: 0, fnDebugItem}).addText(digitos).finalize();
-	var dv2 = calcDigitSum({factor: 6, digitIndex: 1, fnDebugItem}).addText(digitos + dv1).finalize();
+export function getDigitsCNPJManual(digits, fnDebugItem) {
+	// const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCNPJManual debugItem`); // 
+	var dv1 = calcDigitSum({factor: 5, digitIndex: 0, fnDebugItem}).addText(digits).finalize();
+	var dv2 = calcDigitSum({factor: 6, digitIndex: 1, fnDebugItem}).addText(digits + dv1).finalize();
 	return `${dv1}${dv2}`;
 }
 
-export function getDigitsCNPJ(digits) {
-	digits = String(digits).replace(/[^0-9]/g, '').substr(0, 12);
-	const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCNPJ debugItem`); // 
+export function getDigitsCNPJ(digits, fnDebugItem) {
+	// const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCNPJ debugItem`); // 
 	return calcDigitCNPJ(fnDebugItem).addText(digits).finalize().join('');
 }
 
-export function checkCNPJ(valor) {
-	valor = String(valor).replace(/[^0-9]/g, '');
-	var digitos = valor.substr(0, 12);
-	var dv = getDigitsCNPJManual(digitos);
-	return (digitos + dv) === valor;
+export function checkCNPJ(valor, fnDebugItem) {
+	valor = String(valor).replace(reNonDigit, '');
+	var digits = valor.substr(0, 12);
+	var dv = getDigitsCNPJManual(digits, fnDebugItem);
+	return (digits + dv) === valor;
 }
