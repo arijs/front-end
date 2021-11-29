@@ -46,3 +46,10 @@ export default function pointerDrag() {
 	};
 	return api;
 }
+
+export const getPointerDragInstance = (function() {
+	var inst;
+	return function() {
+		return inst || (inst = pointerDrag());
+	};
+})();

@@ -7,3 +7,4 @@ export * as state from './state/index.mjs';
 export * as storage from './storage/index.mjs';
 export * as string from './string/index.mjs';
 export * as utils from './utils/index.mjs';
+export * as vue from './vue/index.mjs';
