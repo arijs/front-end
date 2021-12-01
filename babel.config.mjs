@@ -62,9 +62,9 @@ export default {
 		[
 			"@babel/preset-env",
 			{
-				"modules": false //"umd"
-			}
-		]
+				"modules": false, //"umd"
+			},
+		],
 	],
 	"plugins": [
 		[
@@ -72,20 +72,23 @@ export default {
 			{
 				resolvePath(sourcePath) {
 					return sourcePath.replace(reExt, '');
-				}
-			}
+				},
+			},
 		],
 		[
 			"@arijs/babel-plugin-transform-modules-umd",
 			{
 				"globals": dfResult,
 				"exactGlobals": true,
-				"importFileExt": ".js"
-			}
+				"importFileExt": ".js",
+			},
 		],
 		[
-			"@babel/plugin-proposal-class-properties"
-		]
+			"@babel/plugin-proposal-class-properties",
+		],
+		[
+			"@babel/plugin-transform-runtime",
+		],
 	],
 	moduleIds: true,
 	getModuleId(name) {
@@ -93,5 +96,5 @@ export default {
 		// console.log(` - rel    "${rel}"`);
 		if (reModulePath.test(rel)) return `AriJS/${rel}`;
 		console.log(` - other    "${name}"`);
-	}
+	},
 }

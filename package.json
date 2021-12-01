@@ -53,11 +53,13 @@
 		"@babel/cli": "^7.12.10",
 		"@babel/core": "^7.12.10",
 		"@babel/plugin-proposal-class-properties": "^7.16.0",
+		"@babel/plugin-transform-runtime": "^7.16.4",
 		"@babel/polyfill": "^7.12.1",
 		"@babel/preset-env": "^7.12.11",
 		"babel-plugin-module-resolver": "^4.1.0"
 	},
 	"dependencies": {
+		"@babel/runtime": "^7.16.3",
 		"dir-files": "^1.0.0-rc.15"
 	}
 }
