@@ -1,3 +1,4 @@
+import forEach from '../../isomorphic/utils/for-each.mjs';
 import throttle from '../../isomorphic/utils/throttle.mjs';
 import animate from '../animation/animate.mjs';
 import { cubic, modOut } from '../animation/easing.mjs';

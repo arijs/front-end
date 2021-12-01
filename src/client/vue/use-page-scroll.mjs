@@ -28,6 +28,7 @@ export default function usePageScroll (Vue, refRoot) {
 	function listenStart() {
 		evScrollOn(window);
 		evScrollRootOn();
+		updateScrollPos();
 		state.active = true;
 	}
 	function listenStop() {
@@ -48,7 +49,6 @@ export default function usePageScroll (Vue, refRoot) {
 		listenStop,
 		useMounted,
 	});
-	updateScrollPos();
 	Vue.watchEffect(function() {
 		var root = refRoot?.value;
 		var mted = state.mounted;

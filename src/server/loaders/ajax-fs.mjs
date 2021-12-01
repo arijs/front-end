@@ -1,4 +1,4 @@
-import { promises } from 'fs';
+import promises from 'fs/promises';
 
 const { readFile } = promises;
 
