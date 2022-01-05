@@ -63,6 +63,16 @@ export class StringToLines extends Transform {
 	}
 }
 
+export function tryReadStreamEnd(rs) {
+	return new Promise((resolve, reject) => {
+		// https://github.com/nodejs/node/issues/40116
+		rs.pause()
+		rs.on('end', resolve)
+		rs.on('error', reject)
+		rs.resume()
+	})
+}
+
 export function tryOpenReadPromise(path, rsOpt) {
 	return new Promise((resolve, reject) => {
 		const stream = createReadStream(path, rsOpt)

@@ -4,7 +4,7 @@ export default function addMultiKeyPromise(api) {
 	promise.multiKey = function(listKey, sep, lExpires, lPath, lSecure) {
 		var index = promise.key(listKey, lExpires, lPath, lSecure);
 		async function indexUpdate(mod) {
-			const data = await index.get();
+			let data = await index.get();
 			data = mod(data || {});
 			// data[k] = true;
 			return await index.set(data);
