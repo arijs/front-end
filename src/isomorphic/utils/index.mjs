@@ -1,3 +1,4 @@
+export { abortable, onlyRunLast } from './abortable.mjs';
 export { default as allCallback } from './all-callback.mjs';
 export { default as bytesSize } from './bytes-size.mjs';
 export * as collection from './collection.mjs';

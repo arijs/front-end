@@ -12,9 +12,9 @@ export default function addMultiKeyAsync(api) {
 		}
 		return {
 			index: index,
-			key: function(subKey) {
+			key: function(subKey, expires, path, secure) {
 				var k = listKey+(sep||'')+subKey;
-				var sub = api.key(k);
+				var sub = api.key(k, expires, path, secure);
 				return {
 					get: sub.get,
 					set: function(v, cb) {

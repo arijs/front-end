@@ -1,6 +1,9 @@
 import allCallback from '../../../isomorphic/utils/all-callback.mjs';
 import addStoreKeyAsync from './add-store-key-async.mjs';
 import addMultiKeyAsync from './add-multi-key-async.mjs';
+import asyncAdapterPromise from './promise-adapter.mjs';
+import addStoreKeyPromise from './add-store-key-promise.mjs';
+import addMultiKeyPromise from './add-multi-key-promise.mjs';
 
 let capacitorstore = {
 	s: (function() {
@@ -82,5 +85,8 @@ let capacitorstore = {
 
 capacitorstore = addStoreKeyAsync(capacitorstore);
 capacitorstore = addMultiKeyAsync(capacitorstore);
+capacitorstore = asyncAdapterPromise(capacitorstore);
+capacitorstore = addStoreKeyPromise(capacitorstore);
+capacitorstore = addMultiKeyPromise(capacitorstore);
 
 export default capacitorstore;
