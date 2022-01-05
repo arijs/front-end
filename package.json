@@ -1,6 +1,6 @@
 {
 	"name": "@arijs/frontend",
-	"version": "0.2.22",
+	"version": "0.2.23",
 	"description": "Front-end utilities and patterns, components for use with VueJS",
 	"main": "./lib/index.js",
 	"exports": {
