@@ -112,3 +112,10 @@ export function tryWriteStreamEnd(ws, data) {
 		ws.end(data)
 	})
 }
+
+export function tryCloseStream(ws) {
+	return new Promise((resolve, reject) => {
+		ws.on('close', resolve)
+		ws.on('error', reject)
+	})
+}

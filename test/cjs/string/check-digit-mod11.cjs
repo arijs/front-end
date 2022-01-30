@@ -10,7 +10,7 @@ const {
 			getDigitsCNPJManual,
 		},
 	},
-} = require('@arijs/frontend/server/index');;
+} = require('@arijs/frontend/server/index');
 
 function compare(result, expected, name) {
 	if (result === expected) {
