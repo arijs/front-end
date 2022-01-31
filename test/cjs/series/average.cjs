@@ -16,21 +16,25 @@ const {
 
 exports.testAverage = testAverage
 
-function testAverage(series, resolution, average) {
+export function testAverage(series, resolution, average, fullInfoVT, fullInfoTV) {
 
 	console.log(`Average over time:`);
 	const avgVT = calcSeriesAverage(
 		series, resolution, average,
-		// undefined,
-		// undefined,
-		// undefined,
-		// csAvgGetFullInfoFromCut
+		undefined,
+		undefined,
+		undefined,
+		fullInfoVT
+			? csAvgGetFullInfoFromCut
+			: undefined,
 	);
 	const avgPrintVT = printAverage(
 		avgVT,
-		// undefined,
-		// undefined,
-		// printAvgFullInfoList
+		undefined,
+		undefined,
+		fullInfoVT
+			? printAvgFullInfoList
+			: undefined,
 	);
 	avgPrintVT.avg.forEach((s) => console.log(s));
 	console.log(avgPrintVT.sum);
@@ -41,9 +45,19 @@ function testAverage(series, resolution, average) {
 		series, resolution, average,
 		getValueOfSeriesItem,
 		getTimeOfSeriesItem,
-		createSeriesItemInverted
+		createSeriesItemInverted,
+		fullInfoTV
+			? csAvgGetFullInfoFromCut
+			: undefined,
 	);
-	const avgPrintTV = printAverage(avgTV);
+	const avgPrintTV = printAverage(
+		avgTV,
+		undefined,
+		undefined,
+		fullInfoTV
+			? printAvgFullInfoList
+			: undefined,
+	);
 	avgPrintTV.avg.forEach((s) => console.log(s));
 	console.log(avgPrintTV.sum);
 	avgPrintTV.holes.forEach((h, i) => {

@@ -99,13 +99,22 @@ export function getSegment(
 	};
 }
 
+export function betweenOneSideTimeClip(inside) {
+	return inside
+}
+
+export function betweenOneSideTimeOverflow(inside, cut, gt, gv, ci) {
+	return ci(cut, gv(inside));
+}
+
 export function calcItemBetween(
 	cut,
 	before,
 	after,
 	gt = getTimeOfSeriesItem,
 	gv = getValueOfSeriesItem,
-	ci = createSeriesItem
+	ci = createSeriesItem,
+	b1s = betweenOneSideTimeClip,
 ) {
 	if (before && after) {
 		const tStart = gt(before);
@@ -117,9 +126,9 @@ export function calcItemBetween(
 		const vDuration = vEnd - vStart;
 		return ci(cut, fracFirst * vDuration + vStart);
 	} else if (before) {
-		return ci(cut, gv(before));
+		return b1s(before, cut, gt, gv, ci);
 	} else if (after) {
-		return ci(cut, gv(after));
+		return b1s(after, cut, gt, gv, ci);
 	} else {
 		throw new Error(`Cannot calculate value between without before or after`);
 	}
@@ -131,18 +140,19 @@ export function getSegmentCutAndSum(
 	end,
 	gt = getTimeOfSeriesItem,
 	gv = getValueOfSeriesItem,
-	ci = createSeriesItem
+	ci = createSeriesItem,
+	b1s,
 ) {
 	const { before, first, last, after } = segment;
 	const cutBefore = first
-		? calcItemBetween(start, before, first, gt, gv, ci)
+		? calcItemBetween(start, before, first, gt, gv, ci, b1s)
 		: before && after
-		? calcItemBetween(start, before, after, gt, gv, ci)
+		? calcItemBetween(start, before, after, gt, gv, ci, b1s)
 		: undefined;
 	const cutAfter = last
-		? calcItemBetween(end, last, after, gt, gv, ci) // dont break line
+		? calcItemBetween(end, last, after, gt, gv, ci, b1s)
 		: before && after
-		? calcItemBetween(end, before, after, gt, gv, ci)
+		? calcItemBetween(end, before, after, gt, gv, ci, b1s)
 		: undefined;
 	const time = cutBefore && cutAfter ? gt(cutAfter) - gt(cutBefore) : 0;
 	const value = cutBefore && cutAfter ? gv(cutAfter) - gv(cutBefore) : 0;
@@ -156,7 +166,7 @@ export function getSegmentCutAndSum(
 	};
 }
 
-export function getSegmentCutAndSumFromSeries(series, start, end, gt, gv, ci, rb, rf, rl, ra) {
+export function getSegmentCutAndSumFromSeries(series, start, end, gt, gv, ci, rb, rf, rl, ra, b1s) {
 	const length = end - start;
 	const meta = {
 		start,
@@ -164,7 +174,7 @@ export function getSegmentCutAndSumFromSeries(series, start, end, gt, gv, ci, rb
 		end,
 	};
 	const segment = getSegment(series, start, end, gt, gv, rb, rf, rl, ra);
-	const cut = getSegmentCutAndSum(segment, start, end, gt, gv, ci);
+	const cut = getSegmentCutAndSum(segment, start, end, gt, gv, ci, b1s);
 	return { meta, segment, cut };
 }
 
@@ -183,7 +193,8 @@ export function calcSeriesAverage(
 	gt = getTimeOfSeriesItem,
 	gv = getValueOfSeriesItem,
 	ci = createSeriesItem,
-	getInfoFromCut = csAvgGetSumFromCut
+	getInfoFromCut = csAvgGetSumFromCut,
+	b1s
 ) {
 	const sLen = series.length;
 	const tMin = gt(series[0]);
@@ -208,6 +219,9 @@ export function calcSeriesAverage(
 			ci,
 			prevCut ? undefined : reduceValueLesser,
 			prevCut ? undefined : reduceValueLesser,
+			undefined,
+			undefined,
+			b1s,
 		);
 		const { cutBefore, sum } = lastCut.cut;
 		if (sum) {
@@ -216,8 +230,8 @@ export function calcSeriesAverage(
 				currentHole = undefined;
 			}
 			avg.push(getInfoFromCut(lastCut, prevCut));
-			tSum += gt(sum) * resolution / average;
-			vSum += gv(sum) * resolution / average;
+			tSum += gt(sum) * resolution / gt(sum);
+			vSum += gv(sum) * resolution / gt(sum);
 		} else if (!currentHole) {
 			currentHole = {
 				tPos,

@@ -32,6 +32,7 @@
 	"scripts": {
 		"build": "./node_modules/.bin/babel src --out-dir lib --verbose",
 		"test": "node test/mjs/index.mjs && node test/cjs/index.cjs",
+		"testSeriesMjs": "node test/mjs/series/index.mjs",
 		"testSeries": "node test/mjs/series/index.mjs && node test/cjs/series/index.cjs"
 	},
 	"repository": {

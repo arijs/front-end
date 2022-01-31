@@ -10,46 +10,75 @@ const {
 		getTimeOfSeriesItem,
 		getValueOfSeriesItem,
 		createSeriesItemInverted,
+		betweenOneSideTimeOverflow,
+		csAvgGetFullInfoFromCut,
 		calcSeriesAverage,
 	},
 	print: {
+		printAvgFullInfoList,
 		printAverage,
 	}
 } = seriesModule;
 
-export function testAverage(series, resolution, average) {
-
-	console.log(`Average over time:`);
-	const avgVT = calcSeriesAverage(
-		series, resolution, average,
-		// undefined,
-		// undefined,
-		// undefined,
-		// csAvgGetFullInfoFromCut
-	);
-	const avgPrintVT = printAverage(
-		avgVT,
-		// undefined,
-		// undefined,
-		// printAvgFullInfoList
-	);
-	avgPrintVT.avg.forEach((s) => console.log(s));
-	console.log(avgPrintVT.sum);
-	avgPrintVT.holes.forEach((s) => console.log(s));
-
-	console.log(`Average over size:`);
-	const avgTV = calcSeriesAverage(
-		series, resolution, average,
-		getValueOfSeriesItem,
-		getTimeOfSeriesItem,
-		createSeriesItemInverted
-	);
-	const avgPrintTV = printAverage(avgTV);
-	avgPrintTV.avg.forEach((s) => console.log(s));
-	console.log(avgPrintTV.sum);
-	avgPrintTV.holes.forEach((h, i) => {
+function printAvgPrint(avgPrint) {
+	avgPrint.avg.forEach((s) => console.log(s));
+	console.log(avgPrint.sum);
+	avgPrint.holes.forEach((h, i) => {
 		console.log(`Hole ${i}`);
 		console.log(h);
 	});
+}
+
+export function testAverageTime(series, resolution, average, fullInfo, b1sOverflow) {
+
+	console.log(`Average over time:`);
+	const avgSeries = calcSeriesAverage(
+		series, resolution, average,
+		undefined,
+		undefined,
+		undefined,
+		fullInfo
+			? csAvgGetFullInfoFromCut
+			: undefined,
+		b1sOverflow
+			? betweenOneSideTimeOverflow
+			: undefined,
+	);
+	const avgPrint = printAverage(
+		avgSeries,
+		undefined,
+		undefined,
+		fullInfo
+			? printAvgFullInfoList
+			: undefined,
+	);
+	printAvgPrint(avgPrint);
+
+}
+
+export function testAverageValue(series, resolution, average, fullInfo, b1sOverflow) {
+
+	console.log(`Average over size:`);
+	const avgSeries = calcSeriesAverage(
+		series, resolution, average,
+		getValueOfSeriesItem,
+		getTimeOfSeriesItem,
+		createSeriesItemInverted,
+		fullInfo
+			? csAvgGetFullInfoFromCut
+			: undefined,
+		b1sOverflow
+			? betweenOneSideTimeOverflow
+			: undefined,
+	);
+	const avgPrint = printAverage(
+		avgSeries,
+		undefined,
+		undefined,
+		fullInfo
+			? printAvgFullInfoList
+			: undefined,
+	);
+	printAvgPrint(avgPrint);
 
 }

@@ -43,19 +43,19 @@ export function printSegment({ meta, segment, cut }, gt, gv) {
 	};
 }
 
-export function printAvgFullInfo({ cut, cutPrev }, gt, gv) {
+export function printAvgFullInfo({ cut, cutPrev }, gt, gv, withPrev) {
 	return {
 		cut: cut && printSegment(cut, gt, gv),
-		cutPrev: cutPrev && printSegment(cutPrev, gt, gv),
+		cutPrev: cutPrev && withPrev ? printSegment(cutPrev, gt, gv) : undefined,
 		simul: cut?.cut?.cutBeforeSimul || cut?.cut?.cutAfterSimul,
 	};
 }
 
-export function printAvgFullInfoList(s, gt, gv) {
+export function printAvgFullInfoList(s, gt, gv, withPrev) {
 	if (!(s instanceof Array)) {
 		throw new Error(`printAvgFullInfoList: series is not an array`);
 	}
-	return s.map(avg => printAvgFullInfo(avg, gt, gv));
+	return s.map(avg => printAvgFullInfo(avg, gt, gv, withPrev));
 }
 
 export function printAverageHole(hole, gt, gv) {
