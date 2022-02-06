@@ -389,6 +389,14 @@ export function simpleSlider(
 	}
 }
 
+export function simpleSliderHorizontal(elTrack, vMin, vMax, ticks) {
+	return simpleSlider(SLIDER_HORIZONTAL, elTrack, vMin, vMax, ticks)
+}
+
+export function simpleSliderVertical(elTrack, vMin, vMax, ticks) {
+	return simpleSlider(SLIDER_VERTICAL, elTrack, vMin, vMax, ticks)
+}
+
 function simpleSliderHandle(
 	el,
 	direction,
