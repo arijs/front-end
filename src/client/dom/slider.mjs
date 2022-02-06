@@ -329,12 +329,12 @@ export function sliderHandleNotCross(hLow, hHigh) {
 		hHigh.setValueMin(hLow.getValue())
 	}
 	function listen() {
-		hLow.onMove.on(updateLimits)
-		hHigh.onMove.on(updateLimits)
+		hLow.onEnd.on(updateLimits)
+		hHigh.onEnd.on(updateLimits)
 	}
 	function unlisten() {
-		hLow.onMove.off(updateLimits)
-		hHigh.onMove.off(updateLimits)
+		hLow.onEnd.off(updateLimits)
+		hHigh.onEnd.off(updateLimits)
 	}
 }
 
