@@ -6,11 +6,13 @@ import {
 } from '@arijs/frontend/server/index';
 
 const {
+	xorRot4,
 	xorRot8,
 	xorRot16,
 	xorRot32,
 } = utilsModule;
 
+runBits(xorRot4)
 runBits(xorRot8)
 runBits(xorRot16)
 runBits(xorRot32)
@@ -39,8 +41,6 @@ function runBits({
 		const a = getRand() & (bits - 1)
 		const b = getRand() & (bits - 1)
 		return run(x, a, b)
-		// const i = a > b
-		// return run(x, i ? b : a, i ? a : b)
 	}
 
 	function runTimes(c) {
@@ -48,7 +48,7 @@ function runBits({
 	}
 
 	console.log({ bits, maxVal })
-	run((471490377 % maxVal) >>> 0, 1, 13 & (bits - 1))
-	run((471490377 % maxVal) >>> 0, 13 & (bits - 1), 1)
+	run((471490377 % maxVal) >>> 0, 1, 15 & (bits - 1))
+	run((471490377 % maxVal) >>> 0, 15 & (bits - 1), 1)
 	runTimes(randCount)
 }

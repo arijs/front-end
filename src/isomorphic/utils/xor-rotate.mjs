@@ -20,13 +20,12 @@ function inRange(val, min, max, errPrefix) {
 	return val
 }
 
-export function fnXorRotate2(bytes) {
-	bytes = inRange(bytes, 1, 4, `FnXorRotate(bytes: 1...4)`)
-	const bits = bytes * 8
+export function fnXorRotate2(bits) {
+	bits = inRange(bits, 2, 32, `FnXorRotate(bits: 2...32)`)
 	const maxVal = poorMansPower(2, bits)
 	const rot = (x, i) => {
-		x = inRange(x, -maxVal, maxVal, `XorRotate(x: 0...${maxVal})`)
-		i = inRange(i, 0, bits-1, `XorRotate(bits: 0...${bits-1})`)
+		inRange(x >>> 0, 0, maxVal, `XorRotate(x: 0...${maxVal})`)
+		inRange(i, 0, bits-1, `XorRotate(bits: 0...${bits-1})`)
 		x = ((x << i)|(x >>> (bits-i))) & (maxVal - 1)
 		return x
 	}
@@ -40,7 +39,6 @@ export function fnXorRotate2(bytes) {
 		return x
 	}
 	return Object.freeze({
-		bytes,
 		bits,
 		maxVal,
 		rot,
@@ -49,8 +47,9 @@ export function fnXorRotate2(bytes) {
 	})
 }
 
-export const xorRot8  = fnXorRotate2(1)
-export const xorRot16 = fnXorRotate2(2)
+export const xorRot4  = fnXorRotate2(4)
+export const xorRot8  = fnXorRotate2(8)
+export const xorRot16 = fnXorRotate2(16)
 // does not work
-// export const xorRot24 = fnXorRotate2(3)
-export const xorRot32 = fnXorRotate2(4)
+// export const xorRot24 = fnXorRotate2(24)
+export const xorRot32 = fnXorRotate2(32)
