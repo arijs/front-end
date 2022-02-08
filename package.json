@@ -34,6 +34,7 @@
 		"test": "node test/mjs/index.mjs && node test/cjs/index.cjs",
 		"testSeriesMjs": "node test/mjs/series/index.mjs",
 		"testSeries": "node test/mjs/series/index.mjs && node test/cjs/series/index.cjs",
+		"testXorRotateMjs": "node test/mjs/utils/xor-rotate.mjs",
 		"testClient": "npx http-server ./ -o /test/"
 	},
 	"repository": {

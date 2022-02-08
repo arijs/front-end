@@ -24,3 +24,4 @@ export * as propertyChain from './property-chain.mjs';
 export * as queryString from './query-string.mjs';
 export * as surrogates from './surrogates.mjs';
 export { default as throttle } from './throttle.mjs';
+export * from './xor-rotate.mjs';
