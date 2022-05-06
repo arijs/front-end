@@ -43,7 +43,7 @@ export class StringToLines extends Transform {
 		try {
 			const rsep = this.rowSeparator
 			// const csep = this.colSeparator
-			let c = this.csvBuf + chunk
+			let c = this.strBuf + chunk
 			let rowIndex = this.numRows
 			this.onChunkStart(chunk, rowIndex)
 			for(let nlIndex; nlIndex = c.indexOf(rsep), nlIndex != -1;) {
@@ -53,7 +53,7 @@ export class StringToLines extends Transform {
 				c = c.substr(nlIndex + 1)
 			}
 			this.onChunkEnd(chunk, rowIndex)
-			this.csvBuf = c
+			this.strBuf = c
 			this.numRows = rowIndex
 		} catch (e) {
 			callback(e)
