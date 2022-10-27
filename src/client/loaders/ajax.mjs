@@ -109,6 +109,37 @@ export const ajaxTypeJson = createTypeParser({
 	}
 });
 
+export function createResponseTypeParser({type, getData} = {}) {
+	return {
+		beforeReq(req) {
+			if ('string' === typeof type) {
+				req.responseType = type
+			}
+		},
+		getData(req) {
+			if (getData instanceof Function) {
+				return getData(req)
+			} else switch (type) {
+				case '':
+				case 'text':
+					return req.responseText
+				case 'arraybuffer':
+				case 'blob':
+				case 'document':
+				case 'json':
+				default:
+					return req.response
+			}
+		}
+	}
+}
+
+export const responseTextParser = createResponseTypeParser({ type: 'text' })
+export const responseArrayBufferParser = createResponseTypeParser({ type: 'arraybuffer' })
+export const responseBlobParser = createResponseTypeParser({ type: 'blob' })
+export const responseDocumentParser = createResponseTypeParser({ type: 'document' })
+export const responseJsonParser = createResponseTypeParser({ type: 'json' })
+
 export function respTestTypes(resp, types) {
 	for (var i = 0, c = types.length; i < c; i++) {
 		var type = types[i];
@@ -165,6 +196,7 @@ export function loadAjax(opt) {
 	var head = opt.headers;
 	var hc = head && head.length || 0;
 	var parse = opt.parse || parseResponse;
+	var parseResponse = opt.parseResponse || responseTextParser;
 	var timeout = opt.timeout;
 	var idTimeout;
 	var stopTimeout = function stopTimeout() {
@@ -199,7 +231,7 @@ export function loadAjax(opt) {
 	req.addEventListener('load', function() {
 		// var tl = loadAjaxMessages['error-server'];
 		resp.loading = false;
-		resp.data = req.responseText;
+		resp.data = parseResponse.getData(req);
 		if (req.status < 200 || req.status >= 300) {
 			// var tlVars = {
 			// 	code: req.status,
@@ -231,6 +263,7 @@ export function loadAjax(opt) {
 		req.upload.addEventListener('progress', opt.onProgressUpload);
 	}
 	req.open(opt.method || 'GET', opt.url);
+	parseResponse.beforeReq(req);
 	if (opt.xhrFields) extend(req, opt.xhrFields);
 	for (var i = 0; i < hc; i++) {
 		var h = head[i];
