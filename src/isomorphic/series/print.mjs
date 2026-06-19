@@ -1,11 +1,14 @@
 import {
 	getTimeOfSeriesItem,
 	getValueOfSeriesItem,
+	getSpeedOfSeriesItem,
 } from './base.mjs'
 
 export function printItem(o, gt = getTimeOfSeriesItem, gv = getValueOfSeriesItem) {
+	const s = (o && 2 in o) ? ` s ${String(getSpeedOfSeriesItem(o)).padStart(3)}` : ''
+	const xy = (o && 4 in o) ? ` / x ${String(o[3]).padStart(3)} y ${String(o[4]).padStart(3)}` : ''
 	return o
-		? `t ${String(gt(o)).padStart(3)} v ${String(gv(o)).padStart(3)}`
+		? `t ${String(gt(o)).padStart(3)} v ${String(gv(o)).padStart(3)}${s}${xy}`
 		: o;
 }
 

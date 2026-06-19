@@ -6,63 +6,79 @@ const {
 			getTimeOfSeriesItem,
 			getValueOfSeriesItem,
 			createSeriesItemInverted,
+			betweenOneSideTimeClip,
+			csAvgGetFullInfoFromCut,
 			calcSeriesAverage,
 		},
 		print: {
+			printAvgFullInfoList,
 			printAverage,
 		},
 	},
 } = require('@arijs/frontend/server/index');
 
-exports.testAverage = testAverage
+exports.testAverageTime = testAverageTime
+exports.testAverageValue = testAverageValue
 
-export function testAverage(series, resolution, average, fullInfoVT, fullInfoTV) {
+function printAvgPrint(avgPrint) {
+	avgPrint.avg.forEach((s) => console.log(s));
+	console.log(avgPrint.sum);
+	avgPrint.holes.forEach((h, i) => {
+		console.log(`Hole ${i}`);
+		console.log(h);
+	});
+}
+
+function testAverageTime(series, resolution, average, fullInfo, b1sOverflow) {
 
 	console.log(`Average over time:`);
-	const avgVT = calcSeriesAverage(
+	const avgSeries = calcSeriesAverage(
 		series, resolution, average,
 		undefined,
 		undefined,
 		undefined,
-		fullInfoVT
+		fullInfo
 			? csAvgGetFullInfoFromCut
 			: undefined,
+		b1sOverflow
+			? undefined
+			: betweenOneSideTimeClip,
 	);
-	const avgPrintVT = printAverage(
-		avgVT,
+	const avgPrint = printAverage(
+		avgSeries,
 		undefined,
 		undefined,
-		fullInfoVT
+		fullInfo
 			? printAvgFullInfoList
 			: undefined,
 	);
-	avgPrintVT.avg.forEach((s) => console.log(s));
-	console.log(avgPrintVT.sum);
-	avgPrintVT.holes.forEach((s) => console.log(s));
+	printAvgPrint(avgPrint);
+
+}
+
+function testAverageValue(series, resolution, average, fullInfo, b1sOverflow) {
 
 	console.log(`Average over size:`);
-	const avgTV = calcSeriesAverage(
+	const avgSeries = calcSeriesAverage(
 		series, resolution, average,
 		getValueOfSeriesItem,
 		getTimeOfSeriesItem,
 		createSeriesItemInverted,
-		fullInfoTV
+		fullInfo
 			? csAvgGetFullInfoFromCut
 			: undefined,
+		b1sOverflow
+			? undefined
+			: betweenOneSideTimeClip,
 	);
-	const avgPrintTV = printAverage(
-		avgTV,
+	const avgPrint = printAverage(
+		avgSeries,
 		undefined,
 		undefined,
-		fullInfoTV
+		fullInfo
 			? printAvgFullInfoList
 			: undefined,
 	);
-	avgPrintTV.avg.forEach((s) => console.log(s));
-	console.log(avgPrintTV.sum);
-	avgPrintTV.holes.forEach((h, i) => {
-		console.log(`Hole ${i}`);
-		console.log(h);
-	});
+	printAvgPrint(avgPrint);
 
 }

@@ -12,6 +12,8 @@ import {
 	testAverageValue,
 } from './average.mjs';
 
+import './parity.mjs';
+
 const {
 	random: {
 		randSeries,

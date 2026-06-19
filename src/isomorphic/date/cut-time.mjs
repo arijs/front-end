@@ -47,3 +47,9 @@ export function cutTimeDaysArray(number) {
 export function cutTimeYearsArray(number) {
 	return cutNumberArray(timeYearDivArray, number)
 }
+
+export function printTime(number) {
+	const [d, h, m, s, ms] = cutTimeDaysArray(number)
+	const p = (pad, n) => String(n).padStart(pad, '0')
+	return `${d ? `${d}, ` : ''}${h ? `${p(2, h)}:` : ''}${h ? `${p(2, m)}` : m}:${p(2, s)}.${p(3, ms)}`
+}

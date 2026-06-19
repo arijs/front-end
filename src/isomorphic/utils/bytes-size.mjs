@@ -1,5 +1,5 @@
 
-export default function bytesSize(b) {
+export default function bytesSize(b, { extraDecimals = 0 } = {}) {
 	var x = 1024;
 	var max = [
 		[0, 0, 'B'],
@@ -12,6 +12,9 @@ export default function bytesSize(b) {
 	do {
 		m = max[mi++];
 	} while (max[mi] && b >= max[mi][0]);
-	b = Number(m[0] ? b/m[0] : b).toFixed(m[1]);
+	// ponytail: extraDecimals only applies to sized units; raw bytes stay integer.
+	// clamp to toFixed's valid 0..100 range so a wild extraDecimals can't throw.
+	var dec = Math.min(100, Math.max(0, m[0] ? m[1] + extraDecimals : m[1]));
+	b = Number(m[0] ? b/m[0] : b).toFixed(dec);
 	return [b, m[2]];
 }

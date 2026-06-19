@@ -10,7 +10,7 @@ const {
 		getTimeOfSeriesItem,
 		getValueOfSeriesItem,
 		createSeriesItemInverted,
-		betweenOneSideTimeOverflow,
+		betweenOneSideTimeClip,
 		csAvgGetFullInfoFromCut,
 		calcSeriesAverage,
 	},
@@ -41,8 +41,8 @@ export function testAverageTime(series, resolution, average, fullInfo, b1sOverfl
 			? csAvgGetFullInfoFromCut
 			: undefined,
 		b1sOverflow
-			? betweenOneSideTimeOverflow
-			: undefined,
+			? undefined
+			: betweenOneSideTimeClip,
 	);
 	const avgPrint = printAverage(
 		avgSeries,
@@ -68,8 +68,8 @@ export function testAverageValue(series, resolution, average, fullInfo, b1sOverf
 			? csAvgGetFullInfoFromCut
 			: undefined,
 		b1sOverflow
-			? betweenOneSideTimeOverflow
-			: undefined,
+			? undefined
+			: betweenOneSideTimeClip,
 	);
 	const avgPrint = printAverage(
 		avgSeries,

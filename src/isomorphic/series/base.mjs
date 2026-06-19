@@ -7,6 +7,10 @@ export function getValueOfSeriesItem(item) {
 	return item[1];
 }
 
+export function getSpeedOfSeriesItem(item) {
+	return item[2];
+}
+
 export function createSeriesItem(time, value) {
 	return [time, value];
 }
@@ -114,7 +118,7 @@ export function calcItemBetween(
 	gt = getTimeOfSeriesItem,
 	gv = getValueOfSeriesItem,
 	ci = createSeriesItem,
-	b1s = betweenOneSideTimeClip,
+	b1s = betweenOneSideTimeOverflow,
 ) {
 	if (before && after) {
 		const tStart = gt(before);
@@ -186,6 +190,54 @@ export function csAvgGetFullInfoFromCut(cut, cutPrev) {
 	return { cut, cutPrev };
 }
 
+export function convertSeriesAccumulatedToDeltas(series) {
+	const seriesDeltas = []
+	for (let i = 0, c = series.length; i < c; i++) {
+		const accumulatedStep = series[i]
+		const [time0, value0] = series[i - 1] || [0, 0]
+		const [time1, value1] = accumulatedStep
+		const dt = time1 - time0
+		const dv = value1 - value0
+		const deltaStep = [...accumulatedStep]
+		deltaStep[0] = dt
+		deltaStep[1] = dv
+		seriesDeltas.push(deltaStep)
+	}
+	return seriesDeltas
+}
+
+export function calcSeriesSpeedsAverageAccumulated(series) {
+	const seriesWithSpeeds = []
+	for (let i = 0, c = series.length; i < c; i++) {
+		const [time, value] = series[i]
+		const speed = time ? value / time : 0
+		seriesWithSpeeds.push([time, value, speed])
+	}
+	return seriesWithSpeeds
+}
+
+export const SERIES_TIME_UNIT = {
+	ACCUMULATED: 1,
+	INTERVAL: 2,
+}
+
+export function calcSeriesSpeedsAtEachInterval(series, mode = SERIES_TIME_UNIT.ACCUMULATED) {
+	const seriesWithSpeeds = []
+	for (let i = 0, c = series.length; i < c; i++) {
+		const [time0, value0] = series[i - 1] || [0, 0]
+		const [time1, value1] = series[i]
+		const dt = mode === SERIES_TIME_UNIT.ACCUMULATED
+			? time1 - time0
+			: time1
+		const dv = mode === SERIES_TIME_UNIT.ACCUMULATED
+			? value1 - value0
+			: value1
+		const speed = dt ? dv / dt : (dv ? +Infinity : 0)
+		seriesWithSpeeds.push([time1, value1, speed])
+	}
+	return seriesWithSpeeds
+}
+
 export function calcSeriesAverage(
 	series,
 	resolution,
@@ -199,7 +251,7 @@ export function calcSeriesAverage(
 	const sLen = series.length;
 	const tMin = gt(series[0]);
 	const tMax = gt(series[sLen - 1]);
-	const avg = [];
+	const avgBase = [];
 	const holes = [];
 	let currentHole = undefined;
 	let lastCut = undefined;
@@ -229,9 +281,9 @@ export function calcSeriesAverage(
 				currentHole.end = cutBefore;
 				currentHole = undefined;
 			}
-			avg.push(getInfoFromCut(lastCut, prevCut));
-			tSum += gt(sum) * resolution / gt(sum);
-			vSum += gv(sum) * resolution / gt(sum);
+			avgBase.push(getInfoFromCut(lastCut, prevCut));
+			tSum += gt(sum);
+			vSum += gv(sum);
 		} else if (!currentHole) {
 			currentHole = {
 				tPos,
@@ -246,7 +298,12 @@ export function calcSeriesAverage(
 		}
 		tPos = tNext;
 	}
+	// ponytail: full-info entries are {cut,cutPrev} objects, not [t,v] items,
+	// so skip the speed transform for that mode (transfer-speed only ran the sum mode).
+	const avg = getInfoFromCut === csAvgGetFullInfoFromCut
+		? avgBase
+		: calcSeriesSpeedsAtEachInterval(avgBase, SERIES_TIME_UNIT.INTERVAL);
 	const sum = ci(tSum, vSum);
-	return { avg, sum, holes };
+	return { avg, sum, holes, sLen, tMin, tMax };
 }
 
