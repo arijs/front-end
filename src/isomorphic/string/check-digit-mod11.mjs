@@ -12,9 +12,10 @@ export const mod11Methods = {
 		}
 	},
 	calcChar(state, char, index, text) {
-		char = parseInt(char, 10);
-		if (isNaN(char)) {
-			throw new Error(`Mod11: char at pos ${index} is not a number ${JSON.stringify(char)} ${JSON.stringify(text)}`);
+		// Alphanumeric CNPJ: value = ASCII - 48, so '0'-'9' -> 0-9 and 'A'-'Z' -> 17-42.
+		char = String(char).toUpperCase().charCodeAt(0) - 48;
+		if (isNaN(char) || char < 0 || (char > 9 && char < 17) || char > 42) {
+			throw new Error(`Mod11: char at pos ${index} is not a digit or A-Z ${JSON.stringify(text)}`);
 		}
 		let {factor, sum} = state;
 		state.factorLast = factor;
@@ -127,6 +128,7 @@ export function fnFnDebugItem(name) {
 }
 
 const reNonDigit = /\D/g
+const reNonAlnum = /[^0-9A-Z]/g
 
 export function getDigitsCPFManual(digits, fnDebugItem) {
 	// const fnDebugItem = undefined; // fnFnDebugItem(`getDigitsCPFManual debugItem`); // 
@@ -160,7 +162,7 @@ export function getDigitsCNPJ(digits, fnDebugItem) {
 }
 
 export function checkCNPJ(valor, fnDebugItem) {
-	valor = String(valor).replace(reNonDigit, '');
+	valor = String(valor).toUpperCase().replace(reNonAlnum, '');
 	var digits = valor.substr(0, 12);
 	var dv = getDigitsCNPJManual(digits, fnDebugItem);
 	return (digits + dv) === valor;
