@@ -80,7 +80,7 @@ export function sliderHandleDragAdapter({
 	dragDirection,
 	reusePixelPos = false,
 }) {
-	makeDrag({
+	return makeDrag({
 		el: handle.getElement(),
 		onStart(drag) {
 			// this may look useless but it calculates
