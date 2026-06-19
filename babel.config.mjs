@@ -81,20 +81,22 @@ export default {
 				"globals": dfResult,
 				"exactGlobals": true,
 				"importFileExt": ".js",
+				moduleIds: true,
+				getModuleId(name) {
+					const rel = path.relative(dirSrc, name);
+					if (reModulePath.test(rel)) return `AriJS/${rel}`;
+					console.log(` - other    "${name}"`);
+				},
 			},
 		],
 		[
-			"@babel/plugin-proposal-class-properties",
+			"@babel/plugin-transform-export-namespace-from",
+		],
+		[
+			"@babel/plugin-transform-class-properties",
 		],
 		[
 			"@babel/plugin-transform-runtime",
 		],
 	],
-	moduleIds: true,
-	getModuleId(name) {
-		const rel = path.relative(dirSrc, name);
-		// console.log(` - rel    "${rel}"`);
-		if (reModulePath.test(rel)) return `AriJS/${rel}`;
-		console.log(` - other    "${name}"`);
-	},
 }
