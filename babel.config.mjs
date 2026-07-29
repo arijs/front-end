@@ -68,7 +68,7 @@ export default {
 	],
 	"plugins": [
 		[
-			"module-resolver",
+			"@arijs/babel-plugin-module-resolver",
 			{
 				resolvePath(sourcePath) {
 					return sourcePath.replace(reExt, '');

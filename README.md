@@ -121,14 +121,20 @@ every module before Babel runs.
 managers on Windows fail to resolve binaries from `node_modules/.bin` inside
 npm scripts. If you hit the same problem with another tool, call it the same way.
 
-## Known issues
+### The module resolver is a fork
 
-`npm audit` reports a high-severity denial-of-service advisory in
-`brace-expansion`, reached through `babel-plugin-module-resolver`. It is a
-build-time dependency only, so it is not reachable by anything that installs this
-package. The only fix npm offers is `npm audit fix --force`, which downgrades
-`babel-plugin-module-resolver` across a major version, so the advisory is
-accepted rather than patched for now.
+The build depends on
+[`@arijs/babel-plugin-module-resolver`](https://www.npmjs.com/package/@arijs/babel-plugin-module-resolver)
+rather than the upstream `babel-plugin-module-resolver`. Upstream's 5.0.x line
+pulls in `glob`, and with it the `minimatch` → `brace-expansion` chain carrying
+[GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg), which
+no downstream project can patch: the only remedy npm offers is a forced
+downgrade of the plugin across a major version. The fork builds from upstream's
+modernized tooling, which drops `glob` entirely, so `npm audit` here reports
+nothing. Plugin behaviour is identical — the compiled output in `lib/` is byte
+for byte the same either way.
+
+Switch back to the upstream package once it releases a version without `glob`.
 
 ## License
 

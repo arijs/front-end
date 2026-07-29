@@ -57,6 +57,7 @@
 	"author": "AriJS",
 	"license": "MIT",
 	"devDependencies": {
+		"@arijs/babel-plugin-module-resolver": "^5.0.4-0.next",
 		"@arijs/babel-plugin-transform-modules-umd": "^0.1.5",
 		"@babel/cli": "^8.0.1",
 		"@babel/core": "^8.0.1",
@@ -64,7 +65,6 @@
 		"@babel/plugin-transform-export-namespace-from": "^8.0.1",
 		"@babel/plugin-transform-runtime": "^8.0.1",
 		"@babel/preset-env": "^8.0.2",
-		"babel-plugin-module-resolver": "^5.0.3",
 		"dir-files": "^1.1.0"
 	},
 	"dependencies": {
