@@ -133,6 +133,32 @@ every module before Babel runs.
 managers on Windows fail to resolve binaries from `node_modules/.bin` inside
 npm scripts. If you hit the same problem with another tool, call it the same way.
 
+## Releasing
+
+Publishing runs from GitHub Actions using npm's trusted publishing, so there is
+no npm token stored anywhere: Actions authenticates over OIDC with a short-lived
+credential and npm attaches provenance to the release. This works with 2FA on the
+account, which the older publish tokens are losing the ability to do.
+
+Setting it up is a one-time step on npmjs.com, under the package's *Trusted
+Publishers*: add a GitHub Actions publisher for `arijs` / `front-end` /
+`publish.yml`.
+
+To cut a release:
+
+```sh
+npm version patch      # or minor — writes package.json and tags
+git push --follow-tags
+```
+
+Then publish a GitHub Release on that tag. The workflow refuses to continue if
+the tag disagrees with `package.json`, or if the version is already on npm, so a
+release either matches what gets published or does not happen.
+
+`Run workflow` on the Publish action does a dry run by default; untick it to
+publish without cutting a Release. If a run fails, fix the problem and start a
+*fresh* run — re-running a failed job replays the old commit.
+
 ### The module resolver is a fork
 
 The build depends on
