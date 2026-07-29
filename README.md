@@ -98,17 +98,29 @@ Runnable examples live in `examples/`, including a Vue slides example under
 
 ## Development
 
+Requires Node 22 or newer, as recorded in `engines` and `.nvmrc`.
+
 ```sh
 npm install
 npm test          # builds first, then runs the ESM and CommonJS suites
 npm run build     # Babel: src/*.mjs -> lib/*.js (UMD)
-npm run testSeries    # the series benchmarks
+npm run testSeries    # the series demo: random input, prints, asserts nothing
 npm run testClient    # serve the repo and open the browser tests
 ```
 
 `npm test` runs the same suite twice, once as ES modules against `src/` and once
 as CommonJS against `lib/`. That is why it builds first — the CommonJS half
 imports the compiled output, and would fail on a clean checkout otherwise.
+
+Every check in the suite asserts, and a mismatch exits non-zero. `testSeries` is
+deliberately not part of it: it drives the series functions with random input
+and prints the result for a human to look at. The deterministic half of that
+work, `test/*/series/parity.mjs`, pins the same functions to frozen expected
+values and does run under `npm test`.
+
+CI runs `npm ci && npm test` on Node 22 and 24, on both Linux and Windows.
+Windows is in the matrix on purpose — the problems this project has hit there
+do not reproduce on Linux.
 
 The build is driven by `babel.config.mjs`, which walks `src/` with
 [`dir-files`](https://github.com/arijs/dir-files) to derive a UMD global name for

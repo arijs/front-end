@@ -29,7 +29,7 @@
 		"vcomp"
 	],
 	"engines": {
-		"node": ">=18"
+		"node": ">=22"
 	},
 	"scripts": {
 		"build": "node ./node_modules/@babel/cli/bin/babel.js src --out-dir lib --verbose",
