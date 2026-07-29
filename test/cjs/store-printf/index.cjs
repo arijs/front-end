@@ -29,6 +29,7 @@ function compare(result, expected, name) {
 		console.log(`Test ${name} - Error:`);
 		console.log(`Result  : ${result}`);
 		console.log(`Expected: ${expected}`);
+		process.exitCode = 1;
 	}
 }
 
