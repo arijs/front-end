@@ -25,12 +25,16 @@
 	"files": [
 		"src",
 		"lib",
-		"test",
 		"utils",
 		"vcomp"
 	],
+	"engines": {
+		"node": ">=18"
+	},
 	"scripts": {
 		"build": "node ./node_modules/@babel/cli/bin/babel.js src --out-dir lib --verbose",
+		"prepack": "npm run build",
+		"pretest": "npm run build",
 		"test": "node test/mjs/index.mjs && node test/cjs/index.cjs",
 		"testSeriesMjs": "node test/mjs/series/index.mjs",
 		"testSeries": "node test/mjs/series/index.mjs && node test/cjs/series/index.cjs",
@@ -60,10 +64,10 @@
 		"@babel/plugin-transform-export-namespace-from": "^8.0.1",
 		"@babel/plugin-transform-runtime": "^8.0.1",
 		"@babel/preset-env": "^8.0.2",
-		"babel-plugin-module-resolver": "^5.0.3"
+		"babel-plugin-module-resolver": "^5.0.3",
+		"dir-files": "^1.1.0"
 	},
 	"dependencies": {
-		"@babel/runtime": "^8.0.0",
-		"dir-files": "^1.0.0-rc.15"
+		"@babel/runtime": "^8.0.0"
 	}
 }
