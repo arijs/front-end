@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Report every failing combination, not just the first one.
+      fail-fast: false
+      matrix:
+        # Windows is here on purpose: this project is developed on it, and the
+        # problems it has hit — line endings, resolving binaries from
+        # node_modules/.bin inside npm scripts — only show up there.
+        os: [ubuntu-latest, windows-latest]
+        node: ['22', '24']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # ci rather than install: fails on a package-lock.json that has drifted
+      # from package.json, instead of quietly resolving something else.
+      - run: npm ci
+
+      # pretest builds lib/ first, so this covers the Babel build as well as
+      # the ESM and CommonJS suites.
+      - run: npm test
