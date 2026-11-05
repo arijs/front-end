@@ -33,14 +33,15 @@ export const {
 	ajaxTypeJson,
 } = createAjaxTypes(respGetType);
 
+// Same order as the browser loader: parse and validate first, then pick
+// resp.error, so type, parse and validate() errors reject too. The types are
+// checked only once the whole body is in, not on a timeout mid-response.
 export function parseResponse(resp) {
-	parseGetError(resp);
-
-	if (resp.res) {
+	if (resp.res && !resp.loading) {
 		parseOptTypes(resp);
 	}
-
 	parseValidate(resp);
+	parseGetError(resp);
 	return resp.opt.cb(resp);
 }
 

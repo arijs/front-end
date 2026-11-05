@@ -15,6 +15,23 @@ function startServer() {
 				res.end('boom');
 				return;
 			}
+			if (req.url === '/text') {
+				res.writeHead(200, { 'Content-Type': 'text/plain' });
+				res.end('plain');
+				return;
+			}
+			if (req.url === '/badjson') {
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end('{"broken"');
+				return;
+			}
+			if (req.url === '/slow') {
+				// Headers now, body only when the test calls server.release().
+				res.writeHead(200, { 'Content-Type': 'text/plain' });
+				res.write('partial');
+				server.release = () => res.end(' rest');
+				return;
+			}
 			// Echo what arrived, so each check can look at it in resp.data.
 			res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
 			res.end(JSON.stringify({
@@ -154,6 +171,84 @@ export async function runAjaxNetSuite(mod, label) {
 		);
 		checks++;
 
+		// Regression: parseResponse picked resp.error before parsing types and
+		// running validate(), so a failing validate() resolved the promise.
+		await assert.rejects(
+			loadAjaxPromise({
+				url: `${base}/echo`,
+				typeExpect: ajaxTypeJson,
+				validate: (resp) => resp.data.method === 'GET' && { message: 'GET refused' },
+			}),
+			(resp) => {
+				assert.ok(resp.errorApp instanceof AjaxError, 'validate: AjaxError');
+				assert.equal(resp.errorApp.type, AjaxError.ERROR_APP, 'validate: type');
+				assert.equal(resp.errorApp.message, 'GET refused', 'validate: message');
+				assert.equal(resp.error, resp.errorApp, 'validate: resp.error');
+				return true;
+			},
+		);
+		checks++;
+
+		// Same regression: a wrong Content-Type rejects with errorType.
+		await assert.rejects(
+			loadAjaxPromise({ url: `${base}/text`, typeExpect: ajaxTypeJson }),
+			(resp) => {
+				assert.equal(resp.errorType.type, AjaxError.ERROR_TYPE, 'wrong type: type');
+				assert.deepEqual(resp.errorType.error, { type: 'text/plain', expected: 'application/json' }, 'wrong type: error');
+				assert.equal(resp.error, resp.errorType, 'wrong type: resp.error');
+				return true;
+			},
+		);
+		checks++;
+
+		// Same regression: an unparsable body rejects with errorParse.
+		await assert.rejects(
+			loadAjaxPromise({ url: `${base}/badjson`, typeExpect: ajaxTypeJson }),
+			(resp) => {
+				assert.equal(resp.errorParse.type, AjaxError.ERROR_PARSE, 'bad json: type');
+				assert.equal(resp.error, resp.errorParse, 'bad json: resp.error');
+				return true;
+			},
+		);
+		checks++;
+
+		// A timeout after the headers arrived, but before the body ended, is a
+		// timeout: the half-received response is not type-checked, which would
+		// otherwise report errorType instead.
+		{
+			let settled;
+			const done = new Promise((resolve) => { settled = resolve; });
+			let calls = 0;
+			await assert.rejects(
+				new Promise((resolve, reject) => {
+					mod.loadAjax({
+						url: `${base}/slow`,
+						typeExpect: ajaxTypeJson,
+						timeout: 50,
+						cb: (resp) => {
+							calls++;
+							if (calls === 1) {
+								if (resp.error) reject(resp); else resolve(resp);
+							} else {
+								settled(resp);
+							}
+						},
+					});
+				}),
+				(resp) => {
+					assert.ok(resp.res, 'slow: headers had arrived');
+					assert.equal(resp.errorType, null, 'slow: no type check while loading');
+					assert.equal(resp.errorTimeout.type, AjaxError.ERROR_TIMEOUT, 'slow: timeout');
+					assert.equal(resp.error, resp.errorTimeout, 'slow: resp.error');
+					return true;
+				},
+			);
+			// Let the response finish, so it does not outlive the server.
+			server.release();
+			await done;
+			checks++;
+		}
+
 		// Regression: asBuffer used to throw from Buffer.concat(data, chunk).
 		{
 			const resp = await loadAjaxPromise({
@@ -196,7 +291,10 @@ export async function runAjaxNetSuite(mod, label) {
 			checks++;
 		}
 	} finally {
+		// Drop every connection too, so a failed check cannot leave the /slow
+		// response open and hang the run.
 		server.close();
+		server.closeAllConnections();
 	}
 
 	console.log(`ajax-net (${label}): OK (${checks} checks)`);
