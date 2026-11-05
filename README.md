@@ -86,6 +86,92 @@ printfDict('{ fn : labelSub }', store, mods);
 // 'a=1&b=2'
 ```
 
+## Universal entries
+
+Some modules exist once per environment with the same job: the ajax loader is
+`client/loaders/ajax` (XMLHttpRequest) in the browser and
+`server/loaders/ajax-net` (`http`/`https`) in Node. Code that renders on both
+sides, such as an app with SSR, should not import both and pick one at run
+time. The browser build would still resolve the Node module, and bundlers warn
+about `http` being externalized.
+
+A universal entry is a single import path that each environment resolves on
+its own, through conditional exports in `package.json`:
+
+```js
+import { loadAjaxPromise, ajaxTypeJson } from '@arijs/frontend/universal/loaders/ajax';
+
+const resp = await loadAjaxPromise({
+  method: 'POST',
+  url,
+  headers: [{ name: 'Content-Type', value: 'application/json' }],
+  body: JSON.stringify(payload),
+  typeExpect: ajaxTypeJson,
+  validate,
+  formatError,
+});
+```
+
+| Condition | Resolves to |
+| --- | --- |
+| `browser` | `client/loaders/ajax` |
+| `node` | `server/loaders/ajax-net` |
+| anything else | `client/loaders/ajax` |
+
+Each condition has an `import` (`src/*.mjs`) and a `require` (`lib/*.js`)
+target, like the other subpaths. Bundlers targeting the browser (Vite, webpack)
+set `browser`. Under SSR, Vite leaves dependencies out of the bundle and Node
+resolves them with `node` when the server runs. To check by hand, run Node with
+`--conditions=browser` and you get the browser module.
+
+The universal area is deliberately not part of `src/index.mjs`, which would
+otherwise pull Node code into browser builds.
+
+### What both sides of the ajax loader share
+
+`loadAjax` (also the `default` export), `loadAjaxPromise`, `ajaxTypeJson`,
+`createTypeParser`, `AjaxError`, `formatError`, `parseGetError`,
+`parseOptTypes`, `parseValidate`, `parseResponse`, `respErrorType`,
+`respGetType` and `respTestTypes`.
+
+`AjaxError`, `formatError` and the response pipeline live in
+`isomorphic/loaders/ajax-common`. Both loaders re-export them, so an error from
+either side passes the same `instanceof AjaxError` check. The `resp` object and
+its `errorApp`, `errorNet`, `errorServer`, `errorType`, `errorParse` and
+`errorTimeout` fields have the same shape on both sides. On the server, `resp`
+also carries `res` (the `http.IncomingMessage`) and `headers`.
+
+Only one side has these, and the universal entry does not stand in for them:
+
+- Browser only: `createResponseTypeParser` and the `response*Parser` presets
+  (`responseTextParser`, `responseArrayBufferParser`, `responseBlobParser`,
+  `responseDocumentParser`, `responseJsonParser`), plus the `parseResponse`,
+  `xhrFields`, `onProgress` and `onProgressUpload` options.
+- Node only: `httpProtocol`, `httpsProtocol`, `setDefaultEncoding`, plus the
+  `asBuffer`, `resEncoding`, `onData`, `onEnd`, `onOpen` and `apiProtocol`
+  options.
+
+### Options of the server loader
+
+`server/loaders/ajax-net` takes the same request options as the browser loader:
+
+| Option | Meaning |
+| --- | --- |
+| `url` | The URL to request. Same as `req`, which still works and wins when both are set. |
+| `req` | A URL string, a `URL`, or an options object for `http.request`. |
+| `method` | The HTTP method. Defaults to `GET`. |
+| `headers` | A list of `{ name, value }` like the browser loader (empty items are skipped), or a plain object. |
+| `body` | Written to the request. A string or `Buffer` body gets a `Content-Length`, unless a `Content-Length` or `Transfer-Encoding` header is already set. |
+| `apiProtocol` | Forces the module that makes the request (`http` or `https`). |
+
+Without `apiProtocol`, the protocol comes from the URL: `http:` uses `http`,
+and anything else uses `https`. An options object in `req` uses its `protocol`
+field and falls back to `https` when that field is missing, as before.
+
+When `req` is an options object that sets its own `method` or `headers`, those
+win over the top-level `method` and `headers`. The two header sets are not
+merged.
+
 ## Vue components
 
 The `vcomp/` folder ships plain HTML, CSS and JS component sources — a calendar
