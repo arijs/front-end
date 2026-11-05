@@ -20,6 +20,20 @@
 			"import": "./src/isomorphic/*.mjs",
 			"require": "./lib/isomorphic/*.js"
 		},
+		"./universal/loaders/ajax": {
+			"browser": {
+				"import": "./src/client/loaders/ajax.mjs",
+				"require": "./lib/client/loaders/ajax.js"
+			},
+			"node": {
+				"import": "./src/server/loaders/ajax-net.mjs",
+				"require": "./lib/server/loaders/ajax-net.js"
+			},
+			"default": {
+				"import": "./src/client/loaders/ajax.mjs",
+				"require": "./lib/client/loaders/ajax.js"
+			}
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
