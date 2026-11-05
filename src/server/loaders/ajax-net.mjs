@@ -87,7 +87,7 @@ export function loadAjax(opt) {
 		}
 		res.on('data', opt.onData || (chunk => {
 			if (data instanceof Buffer) {
-				data = Buffer.concat(data, chunk);
+				data = Buffer.concat([data, chunk]);
 			} else {
 				data = data.concat(chunk);
 			}
@@ -95,6 +95,7 @@ export function loadAjax(opt) {
 		res.on('end', opt.onEnd || (() => {
 			resp.loading = false;
 			resp.data = data;
+			stopTimeout();
 			parse(resp);
 		}));
 	});
