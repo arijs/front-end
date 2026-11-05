@@ -141,6 +141,12 @@ its `errorApp`, `errorNet`, `errorServer`, `errorType`, `errorParse` and
 `errorTimeout` fields have the same shape on both sides. On the server, `resp`
 also carries `res` (the `http.IncomingMessage`) and `headers`.
 
+Both sides run the same order: once the body is in, check `typeExpect` /
+`typeAllow`, then call `validate`, then set `resp.error` from the first error
+found (`errorApp`, `errorNet`, `errorServer`, `errorType`, `errorParse`,
+`errorTimeout`). So `loadAjaxPromise` rejects on a failing `validate`, a wrong
+Content-Type or a body that does not parse, on either side.
+
 Only one side has these, and the universal entry does not stand in for them:
 
 - Browser only: `createResponseTypeParser` and the `response*Parser` presets
