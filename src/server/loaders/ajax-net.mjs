@@ -33,7 +33,7 @@ export const {
 	ajaxTypeJson,
 } = createAjaxTypes(respGetType);
 
-function parseResponse(resp) {
+export function parseResponse(resp) {
 	parseGetError(resp);
 
 	if (resp.res) {
