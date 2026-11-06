@@ -72,13 +72,13 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@arijs/babel-plugin-module-resolver": "^5.0.4-0.next",
-		"@arijs/babel-plugin-transform-modules-umd": "^0.1.5",
-		"@babel/cli": "^8.0.1",
-		"@babel/core": "^8.0.1",
-		"@babel/plugin-transform-class-properties": "^8.0.0",
-		"@babel/plugin-transform-export-namespace-from": "^8.0.1",
-		"@babel/plugin-transform-runtime": "^8.0.1",
-		"@babel/preset-env": "^8.0.2",
+		"@arijs/babel-plugin-transform-modules-umd": "^0.1.6",
+		"@babel/cli": "^8.1.0",
+		"@babel/core": "^8.1.0",
+		"@babel/plugin-transform-class-properties": "^8.0.1",
+		"@babel/plugin-transform-export-namespace-from": "^8.1.0",
+		"@babel/plugin-transform-runtime": "^8.0.6",
+		"@babel/preset-env": "^8.0.7",
 		"dir-files": "^1.1.0"
 	},
 	"dependencies": {
